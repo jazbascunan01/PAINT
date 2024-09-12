@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paint</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="containerHeader">
+            <h1>Web Paint App</h1>
+            <div class="toolbar">
+                <!-- Lápiz -->
+                <button id="pencilTool">Pencil</button>
+                <!-- Color Picker para lápiz -->
+                <input type="color" id="pencilColor" title="Choose Pencil Color">
+
+                <!-- Goma de borrar -->
+                <button id="eraserTool">Eraser</button>
+
+                <!-- Cargar Imagen -->
+                <label for="uploadImage">Load Image</label>
+                <input type="file" id="uploadImage" accept="image/*">
+
+                <!-- Filtros Simples -->
+                <button id="negativeFilter">Negative</button>
+                <button id="brightnessFilter">Brightness</button>
+                <button id="binarizationFilter">Binarization</button>
+                <button id="sepiaFilter">Sepia</button>
+
+                <!-- Filtros Avanzados -->
+                <button id="saturationFilter">Saturation</button>
+                <button id="edgeDetectionFilter">Edge Detection</button>
+                <button id="blurFilter">Blur</button>
+
+                <!-- Guardar Imagen -->
+                <button id="saveImage">Save</button>
+
+                <!-- Descartar Imagen -->
+                <button id="clearCanvas">Clear Canvas</button>
+            </div>
+        </div>
+    </header>
+    <canvas id="canvas" width="1000px" height="700px" style="border: 1px solid black;"></canvas>
+    <button id="filtro">aplicar filtro</button>
+
+    <script src="scripts/Pencil.js"></script>
+    <script src="scripts/Eraser.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+
+</html>
