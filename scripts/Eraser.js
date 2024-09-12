@@ -1,7 +1,7 @@
 class Eraser extends Pencil {
 
     constructor(ctx, x, y, size) {
-        super(ctx, x, y, '#FFFFFF', size); // Heredamos de Pencil pero ignoramos el color
+        super(ctx, x, y, '#FFFFFF', size); // Hereda de Pencil pero ignora el color
         this.size = size;
     }
 
