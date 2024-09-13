@@ -50,6 +50,7 @@ document.getElementById('uploadImage').addEventListener('change', (e) => {
 // Manejar el botón de limpiar el lienzo
 document.getElementById('clearCanvas').addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpiar el lienzo
+    originalImageData = null; // Reiniciar la imagen original si se limpia el lienzo
 });
 
 canvas.addEventListener('mousedown', (e) => {

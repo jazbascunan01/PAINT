@@ -1,4 +1,3 @@
-
 class Eraser {
     constructor(ctx, size) {
         this.ctx = ctx;
@@ -15,8 +14,6 @@ class Eraser {
     }
 
     erase(x, y) {
-        if (!originalImageData) return;  // Si no hay imagen original, no se puede borrar
-
         // Interpolar entre el último punto y el actual para borrar todo el camino
         this.interpolateErase(this.lastX, this.lastY, x, y);
 
@@ -45,11 +42,16 @@ class Eraser {
         let width = Math.ceil(this.size);
         let height = Math.ceil(this.size);
 
-        // Obtener los datos originales de la región actual desde la imagen original
-        let regionData = this.getRegionFromOriginal(offsetX, offsetY, width, height);
-
-        // Restaurar los datos originales de la imagen
-        this.ctx.putImageData(regionData, offsetX, offsetY);
+        // Si hay una imagen original, restaurar desde la imagen, de lo contrario pintar de blanco
+        if (originalImageData) {
+            // Obtener los datos originales de la región actual desde la imagen original
+            let regionData = this.getRegionFromOriginal(offsetX, offsetY, width, height);
+            this.ctx.putImageData(regionData, offsetX, offsetY);
+        } else {
+            // Si no hay imagen cargada, simplemente pintar de blanco
+            this.ctx.fillStyle = 'white';
+            this.ctx.fillRect(offsetX, offsetY, width, height);
+        }
     }
 
     getRegionFromOriginal(x, y, width, height) {
