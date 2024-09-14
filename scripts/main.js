@@ -55,3 +55,26 @@ function getMousePos(e) {
     let y = e.clientY - rect.top;
     return { x, y };
 }
+document.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.getElementById('canvas');
+    const descargarImagenBtn = document.getElementById('saveImage');
+
+    if (descargarImagenBtn) {
+        descargarImagenBtn.addEventListener('click', handleDownloadButton);
+    } else {
+        console.error('El botón con id "saveImage" no se encontró.');
+    }
+
+    function handleDownloadButton() {
+        if (canvas) {
+            const link = document.createElement('a');
+            link.download = 'canvas_image.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } else {
+            console.error('El elemento canvas con id "miCanvas" no se encontró.');
+        }
+    }
+});
+
+
