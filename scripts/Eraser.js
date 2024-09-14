@@ -38,32 +38,53 @@ class Eraser {
         let width = Math.ceil(this.size);
         let height = Math.ceil(this.size);
 
+        // Verificar si estamos borrando sobre una imagen filtrada o la original
         if (filteredImageData) {
             let regionData = this.getRegionFromFiltered(offsetX, offsetY, width, height);
-            this.ctx.putImageData(regionData, offsetX, offsetY);
+            if (regionData) {
+                this.ctx.putImageData(regionData, offsetX, offsetY);
+            }
         } else if (originalImageData) {
             let regionData = this.getRegionFromOriginal(offsetX, offsetY, width, height);
-            this.ctx.putImageData(regionData, offsetX, offsetY);
+            if (regionData) {
+                this.ctx.putImageData(regionData, offsetX, offsetY);
+            }
         } else {
             this.ctx.clearRect(offsetX, offsetY, width, height);
         }
     }
 
-    getRegionFromFiltered(x, y, width, height) {
-        let tempCanvas = document.createElement('canvas');
-        let tempCtx = tempCanvas.getContext('2d');
-        tempCanvas.width = width;
-        tempCanvas.height = height;
-        tempCtx.putImageData(filteredImageData, -x, -y);
-        return tempCtx.getImageData(0, 0, width, height);
+    // Corregido: Verificar límites antes de extraer la región de la imagen original
+    getRegionFromOriginal(x, y, width, height) {
+        let validWidth = Math.min(width, originalImageData.width - x); // Asegura que no salga de los límites del canvas
+        let validHeight = Math.min(height, originalImageData.height - y); // Limitar al tamaño de la imagen
+
+        // Solo intentar si el área solicitada está dentro de los límites de la imagen
+        if (validWidth > 0 && validHeight > 0) {
+            let tempCanvas = document.createElement('canvas');
+            let tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = validWidth;
+            tempCanvas.height = validHeight;
+            tempCtx.putImageData(originalImageData, -x, -y);
+            return tempCtx.getImageData(0, 0, validWidth, validHeight);
+        } else {
+            return null;  // Retorna nulo si la región es inválida
+        }
     }
 
-    getRegionFromOriginal(x, y, width, height) {
-        let tempCanvas = document.createElement('canvas');
-        let tempCtx = tempCanvas.getContext('2d');
-        tempCanvas.width = width;
-        tempCanvas.height = height;
-        tempCtx.putImageData(originalImageData, -x, -y);
-        return tempCtx.getImageData(0, 0, width, height);
+    getRegionFromFiltered(x, y, width, height) {
+        let validWidth = Math.min(width, filteredImageData.width - x);
+        let validHeight = Math.min(height, filteredImageData.height - y);
+
+        if (validWidth > 0 && validHeight > 0) {
+            let tempCanvas = document.createElement('canvas');
+            let tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = validWidth;
+            tempCanvas.height = validHeight;
+            tempCtx.putImageData(filteredImageData, -x, -y);
+            return tempCtx.getImageData(0, 0, validWidth, validHeight);
+        } else {
+            return null;  // Retorna nulo si la región es inválida
+        }
     }
 }
