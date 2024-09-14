@@ -30,12 +30,17 @@ function createFilteredVersion(filter) {
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
 
-    // Dibujar la imagen original en el canvas temporal
-    tempCtx.putImageData(originalImageData, 0, 0);
+    // Si ya hay un filtro previo aplicado, partimos de la imagen filtrada; si no, usamos la imagen original
+    if (filteredImageData) {
+        tempCtx.putImageData(filteredImageData, 0, 0);  // Partimos de la imagen filtrada
+    } else {
+        tempCtx.putImageData(originalImageData, 0, 0);  // Partimos de la imagen original
+    }
+
     let tempImageData = tempCtx.getImageData(0, 0, canvas.width, canvas.height);
     let data = tempImageData.data;
 
-    // Aplicar filtro a la imagen original (sin los trazos)
+    // Aplicar filtro a la imagen filtrada
     for (let i = 0; i < data.length; i += 4) {
         let r = data[i];
         let g = data[i + 1];
@@ -73,9 +78,10 @@ function createFilteredVersion(filter) {
         }
     }
 
-    // Guardar la versión filtrada sin trazos
+    // Guardar la nueva versión filtrada sin trazos
     filteredImageData = tempImageData;
 }
+
 
 // Aplicar filtro y visualizar la imagen filtrada con trazos
 function applyFilter(filter) {
