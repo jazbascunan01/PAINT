@@ -51,7 +51,7 @@ canvas.addEventListener('mouseup', () => {
 // Obtener las coordenadas correctas del mouse respecto al lienzo
 function getMousePos(e) {
     let rect = canvas.getBoundingClientRect(); // Obtener la posición del lienzo
-    let x = e.clientX - rect.left; // Coordenada X relativa al lienzo
-    let y = e.clientY - rect.top;  // Coordenada Y relativa al lienzo
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
     return { x, y };
 }

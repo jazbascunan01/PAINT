@@ -8,18 +8,18 @@ class Eraser {
 
     startErase(x, y) {
         // Iniciar la goma de borrar y guardar la posición inicial
-        this.lastX = x;
-        this.lastY = y;
-        this.erase(x, y);  // Empezar a borrar en la primera posición
+        this.lastX = Math.floor(x);
+        this.lastY = Math.floor(y);
+        this.erase(this.lastX, this.lastY);  // Empezar a borrar en la primera posición
     }
 
     erase(x, y) {
         // Interpolar entre el último punto y el actual para borrar todo el camino
-        this.interpolateErase(this.lastX, this.lastY, x, y);
+        this.interpolateErase(this.lastX, this.lastY, Math.floor(x), Math.floor(y));
 
         // Actualizar la última posición
-        this.lastX = x;
-        this.lastY = y;
+        this.lastX = Math.floor(x);
+        this.lastY = Math.floor(y);
     }
 
     interpolateErase(x1, y1, x2, y2) {
@@ -30,8 +30,8 @@ class Eraser {
 
         for (let i = 0; i <= steps; i++) {
             let t = i / steps;
-            let interpolatedX = x1 + dx * t;
-            let interpolatedY = y1 + dy * t;
+            let interpolatedX = Math.floor(x1 + dx * t);
+            let interpolatedY = Math.floor(y1 + dy * t);
             this.eraseAt(interpolatedX, interpolatedY);
         }
     }
@@ -42,11 +42,13 @@ class Eraser {
         let width = Math.ceil(this.size);
         let height = Math.ceil(this.size);
 
-        // Si hay una imagen original, restaurar desde la imagen, de lo contrario pintar de blanco
+        // Verificar si hay una imagen original para restaurar
         if (originalImageData) {
             // Obtener los datos originales de la región actual desde la imagen original
             let regionData = this.getRegionFromOriginal(offsetX, offsetY, width, height);
-            this.ctx.putImageData(regionData, offsetX, offsetY);
+            if (regionData && offsetX >= 0 && offsetY >= 0) {  // Validar que las coordenadas sean válidas
+                this.ctx.putImageData(regionData, offsetX, offsetY);  // Asegurar que los valores sean enteros
+            }
         } else {
             // Si no hay imagen cargada, simplemente pintar de blanco
             this.ctx.fillStyle = 'white';
@@ -55,20 +57,28 @@ class Eraser {
     }
 
     getRegionFromOriginal(x, y, width, height) {
-        // Extrae una región de la imagen original almacenada
+        // Limitar los valores de x e y para que no excedan los límites del canvas
+        let maxX = Math.min(x + width, canvas.width);
+        let maxY = Math.min(y + height, canvas.height);
+
+        // Verificar que originalImageData no sea nulo o indefinido
+        if (!originalImageData) return null;
+
         let data = this.ctx.createImageData(width, height);
 
         for (let i = 0; i < width; i++) {
             for (let j = 0; j < height; j++) {
                 let sourceX = x + i;
                 let sourceY = y + j;
+                // Verificación para evitar accesos fuera de los límites del canvas
                 if (sourceX < 0 || sourceX >= canvas.width || sourceY < 0 || sourceY >= canvas.height) {
-                    continue; // Evitar fuera de límites
+                    continue;
                 }
 
                 let sourceIndex = (sourceY * canvas.width + sourceX) * 4;
                 let targetIndex = (j * width + i) * 4;
 
+                // Copiar los valores RGBA desde originalImageData
                 data.data[targetIndex] = originalImageData.data[sourceIndex];
                 data.data[targetIndex + 1] = originalImageData.data[sourceIndex + 1];
                 data.data[targetIndex + 2] = originalImageData.data[sourceIndex + 2];
