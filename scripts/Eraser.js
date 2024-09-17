@@ -1,9 +1,10 @@
 class Eraser {
-    constructor(ctx, size) {
+    constructor(ctx, size, imageHandler) {
         this.ctx = ctx;
         this.size = size;
         this.lastX = null;
         this.lastY = null;
+        this.imageHandler = imageHandler; // Referencia a ImageHandler
     }
 
     startErase(x, y) {
@@ -38,28 +39,31 @@ class Eraser {
         let width = Math.ceil(this.size);
         let height = Math.ceil(this.size);
 
+        // Obtener las imágenes del ImageHandler
+        const filteredImageData = this.imageHandler.filteredImageData;
+        const originalImageData = this.imageHandler.originalImageData;
+
         // Verificar si estamos borrando sobre una imagen filtrada o la original
         if (filteredImageData) {
-            let regionData = this.getRegionFromFiltered(offsetX, offsetY, width, height);
+            let regionData = this.getRegionFromFiltered(filteredImageData, offsetX, offsetY, width, height);
             if (regionData) {
                 this.ctx.putImageData(regionData, offsetX, offsetY);
             }
         } else if (originalImageData) {
-            let regionData = this.getRegionFromOriginal(offsetX, offsetY, width, height);
+            let regionData = this.getRegionFromOriginal(originalImageData, offsetX, offsetY, width, height);
             if (regionData) {
                 this.ctx.putImageData(regionData, offsetX, offsetY);
             }
         } else {
+            // Si no hay imagen de fondo, borrar normalmente
             this.ctx.clearRect(offsetX, offsetY, width, height);
         }
     }
 
-    // Corregido: Verificar límites antes de extraer la región de la imagen original
-    getRegionFromOriginal(x, y, width, height) {
+    getRegionFromOriginal(originalImageData, x, y, width, height) {
         let validWidth = Math.min(width, originalImageData.width - x); // Asegura que no salga de los límites del canvas
         let validHeight = Math.min(height, originalImageData.height - y); // Limitar al tamaño de la imagen
 
-        // Solo intentar si el área solicitada está dentro de los límites de la imagen
         if (validWidth > 0 && validHeight > 0) {
             let tempCanvas = document.createElement('canvas');
             let tempCtx = tempCanvas.getContext('2d');
@@ -68,11 +72,11 @@ class Eraser {
             tempCtx.putImageData(originalImageData, -x, -y);
             return tempCtx.getImageData(0, 0, validWidth, validHeight);
         } else {
-            return null;  // Retorna nulo si la región es inválida
+            return null;
         }
     }
 
-    getRegionFromFiltered(x, y, width, height) {
+    getRegionFromFiltered(filteredImageData, x, y, width, height) {
         let validWidth = Math.min(width, filteredImageData.width - x);
         let validHeight = Math.min(height, filteredImageData.height - y);
 
@@ -84,7 +88,8 @@ class Eraser {
             tempCtx.putImageData(filteredImageData, -x, -y);
             return tempCtx.getImageData(0, 0, validWidth, validHeight);
         } else {
-            return null;  // Retorna nulo si la región es inválida
+            return null;
         }
     }
 }
+
