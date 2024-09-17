@@ -1,12 +1,19 @@
-/** @type { HTMLCanvasElement} */
+
+/** @type { HTMLCanvasElement } */
 let canvas = document.getElementById('canvas');
-/** @type {CanvasRenderingContext2D} */
+/** @type { CanvasRenderingContext2D } */
 let ctx = canvas.getContext('2d');
 
 let mouseDown = false;
-let goma = new Eraser(ctx, 20);
 let lapiz = new Pencil(ctx, 0, 0, 'black', 15);
 let activeTool = 'pencil';
+let imageHandler = new ImageHandler(ctx, canvas);
+let goma = new Eraser(ctx, 20, imageHandler);
+
+// Manejar el botón de cargar imagen
+document.getElementById('uploadImage').addEventListener('change', (e) => {
+    imageHandler.loadImage(e);
+});
 
 // Cambiar entre lápiz y goma de borrar
 document.getElementById('pencilTool').addEventListener('click', () => {
@@ -50,15 +57,14 @@ canvas.addEventListener('mouseup', () => {
 
 // Obtener las coordenadas correctas del mouse respecto al lienzo
 function getMousePos(e) {
-    let rect = canvas.getBoundingClientRect(); // Obtener la posición del lienzo
+    let rect = canvas.getBoundingClientRect();
     let x = e.clientX - rect.left;
     let y = e.clientY - rect.top;
     return { x, y };
 }
-document.addEventListener('DOMContentLoaded', () => {
-    const canvas = document.getElementById('canvas');
-    const descargarImagenBtn = document.getElementById('saveImage');
 
+document.addEventListener('DOMContentLoaded', () => {
+    const descargarImagenBtn = document.getElementById('saveImage');
     if (descargarImagenBtn) {
         descargarImagenBtn.addEventListener('click', handleDownloadButton);
     } else {
@@ -72,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
             link.href = canvas.toDataURL('image/png');
             link.click();
         } else {
-            console.error('El elemento canvas con id "miCanvas" no se encontró.');
+            console.error('El elemento canvas no se encontró.');
         }
     }
 });
