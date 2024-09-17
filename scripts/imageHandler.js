@@ -1,168 +1,159 @@
-let originalImageData = null;  // Imagen original
-let filteredImageData = null;  // Imagen filtrada sin trazos
-let displayedImageData = null; // Imagen visualizada con los trazos
+class ImageHandler {
+    constructor(ctx, canvas) {
+        this.ctx = ctx;
+        this.canvas = canvas;
+        this.originalImageData = null;  // Imagen original
+        this.filteredImageData = null;  // Imagen filtrada sin trazos
+        this.displayedImageData = null; // Imagen visualizada con los trazos
 
-// Manejar el botón de cargar imagen
-document.getElementById('uploadImage').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                displayedImageData = originalImageData;
-                filteredImageData = null; // Resetear imagen filtrada
+        this.initialize();
+    }
+
+    initialize() {
+        // Manejar el botón de cargar imagen
+        document.getElementById('uploadImage').addEventListener('change', (e) => this.loadImage(e));
+        
+        // Botones para aplicar filtros
+        document.getElementById('grayscaleFilter').addEventListener('click', () => this.applyFilter('grayscale'));
+        document.getElementById('negativeFilter').addEventListener('click', () => this.applyFilter('negative'));
+        document.getElementById('brightnessFilter').addEventListener('click', () => this.applyFilter('brightness'));
+        document.getElementById('binarizationFilter').addEventListener('click', () => this.applyFilter('binarization'));
+        document.getElementById('sepiaFilter').addEventListener('click', () => this.applyFilter('sepia'));
+
+        // Manejar el botón de limpiar el lienzo
+        document.getElementById('clearCanvas').addEventListener('click', () => this.clearCanvas());
+    }
+
+    loadImage(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new window.Image(); // Usar window.Image para evitar conflicto con la clase
+                img.onload = () => {
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
+                    this.originalImageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+                    this.displayedImageData = this.originalImageData;
+                    this.filteredImageData = null; // Resetear imagen filtrada
+                };
+                img.src = event.target.result;
             };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-        e.target.value = '';
-    }
-});
-
-// Crear versión filtrada de la imagen sin trazos
-function createFilteredVersion(filter) {
-    let tempCanvas = document.createElement('canvas');
-    let tempCtx = tempCanvas.getContext('2d');
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-
-    // Si ya hay un filtro previo aplicado, partimos de la imagen filtrada; si no, usamos la imagen original
-    if (filteredImageData) {
-        tempCtx.putImageData(filteredImageData, 0, 0);  // Partimos de la imagen filtrada
-    } else {
-        tempCtx.putImageData(originalImageData, 0, 0);  // Partimos de la imagen original
-    }
-
-    let tempImageData = tempCtx.getImageData(0, 0, canvas.width, canvas.height);
-    let data = tempImageData.data;
-
-    // Aplicar filtro a la imagen filtrada
-    for (let i = 0; i < data.length; i += 4) {
-        let r = data[i];
-        let g = data[i + 1];
-        let b = data[i + 2];
-
-        switch (filter) {
-            case 'grayscale':
-                let gray = (r + g + b) / 3;
-                data[i] = data[i + 1] = data[i + 2] = gray;
-                break;
-            case 'negative':
-                data[i] = 255 - r;
-                data[i + 1] = 255 - g;
-                data[i + 2] = 255 - b;
-                break;
-            case 'brightness':
-                let brightness = 50;
-                data[i] = clamp(r + brightness);
-                data[i + 1] = clamp(g + brightness);
-                data[i + 2] = clamp(b + brightness);
-                break;
-            case 'binarization':
-                let threshold = 128;
-                let average = (r + g + b) / 3;
-                let binary = average > threshold ? 255 : 0;
-                data[i] = data[i + 1] = data[i + 2] = binary;
-                break;
-            case 'sepia':
-                data[i] = clamp((r * 0.393) + (g * 0.769) + (b * 0.189));
-                data[i + 1] = clamp((r * 0.349) + (g * 0.686) + (b * 0.168));
-                data[i + 2] = clamp((r * 0.272) + (g * 0.534) + (b * 0.131));
-                break;
-            default:
-                break;
+            reader.readAsDataURL(file);
+            e.target.value = ''; // Limpiar input
         }
     }
 
-    // Guardar la nueva versión filtrada sin trazos
-    filteredImageData = tempImageData;
-}
+    createFilteredVersion(filter) {
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCanvas.width = this.canvas.width;
+        tempCanvas.height = this.canvas.height;
 
-
-// Aplicar filtro y visualizar la imagen filtrada con trazos
-function applyFilter(filter) {
-    if (!originalImageData) return;
-
-    // Crear la versión filtrada sin trazos y guardarla
-    createFilteredVersion(filter);
-
-    // Aplicar filtro sobre la imagen visualizada (incluyendo los trazos)
-    let tempImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    let data = tempImageData.data;
-
-    for (let i = 0; i < data.length; i += 4) {
-        let r = data[i];
-        let g = data[i + 1];
-        let b = data[i + 2];
-
-        switch (filter) {
-            case 'grayscale':
-                let gray = (r + g + b) / 3;
-                data[i] = data[i + 1] = data[i + 2] = gray;
-                break;
-            case 'negative':
-                data[i] = 255 - r;
-                data[i + 1] = 255 - g;
-                data[i + 2] = 255 - b;
-                break;
-            case 'brightness':
-                let brightness = 50;
-                data[i] = clamp(r + brightness);
-                data[i + 1] = clamp(g + brightness);
-                data[i + 2] = clamp(b + brightness);
-                break;
-            case 'binarization':
-                let threshold = 128;
-                let average = (r + g + b) / 3;
-                let binary = average > threshold ? 255 : 0;
-                data[i] = data[i + 1] = data[i + 2] = binary;
-                break;
-            case 'sepia':
-                data[i] = clamp((r * 0.393) + (g * 0.769) + (b * 0.189));
-                data[i + 1] = clamp((r * 0.349) + (g * 0.686) + (b * 0.168));
-                data[i + 2] = clamp((r * 0.272) + (g * 0.534) + (b * 0.131));
-                break;
-            default:
-                break;
+        if (this.filteredImageData) {
+            tempCtx.putImageData(this.filteredImageData, 0, 0);
+        } else {
+            tempCtx.putImageData(this.originalImageData, 0, 0);
         }
+
+        const tempImageData = tempCtx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        const data = tempImageData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+            let r = data[i], g = data[i + 1], b = data[i + 2];
+
+            switch (filter) {
+                case 'grayscale':
+                    const gray = (r + g + b) / 3;
+                    data[i] = data[i + 1] = data[i + 2] = gray;
+                    break;
+                case 'negative':
+                    data[i] = 255 - r;
+                    data[i + 1] = 255 - g;
+                    data[i + 2] = 255 - b;
+                    break;
+                case 'brightness':
+                    const brightness = 50;
+                    data[i] = this.clamp(r + brightness);
+                    data[i + 1] = this.clamp(g + brightness);
+                    data[i + 2] = this.clamp(b + brightness);
+                    break;
+                case 'binarization':
+                    const threshold = 128;
+                    const average = (r + g + b) / 3;
+                    const binary = average > threshold ? 255 : 0;
+                    data[i] = data[i + 1] = data[i + 2] = binary;
+                    break;
+                case 'sepia':
+                    data[i] = this.clamp((r * 0.393) + (g * 0.769) + (b * 0.189));
+                    data[i + 1] = this.clamp((r * 0.349) + (g * 0.686) + (b * 0.168));
+                    data[i + 2] = this.clamp((r * 0.272) + (g * 0.534) + (b * 0.131));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        this.filteredImageData = tempImageData; // Guardar la nueva versión filtrada sin trazos
     }
 
-    // Visualizar la imagen filtrada con los trazos
-    ctx.putImageData(tempImageData, 0, 0);
-    displayedImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    applyFilter(filter) {
+        if (!this.originalImageData) return;
+
+        // Crear la versión filtrada sin trazos
+        this.createFilteredVersion(filter);
+
+        // Aplicar el filtro sobre la imagen visualizada (incluyendo los trazos)
+        const tempImageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        const data = tempImageData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+            let r = data[i], g = data[i + 1], b = data[i + 2];
+
+            switch (filter) {
+                case 'grayscale':
+                    const gray = (r + g + b) / 3;
+                    data[i] = data[i + 1] = data[i + 2] = gray;
+                    break;
+                case 'negative':
+                    data[i] = 255 - r;
+                    data[i + 1] = 255 - g;
+                    data[i + 2] = 255 - b;
+                    break;
+                case 'brightness':
+                    const brightness = 50;
+                    data[i] = this.clamp(r + brightness);
+                    data[i + 1] = this.clamp(g + brightness);
+                    data[i + 2] = this.clamp(b + brightness);
+                    break;
+                case 'binarization':
+                    const threshold = 128;
+                    const average = (r + g + b) / 3;
+                    const binary = average > threshold ? 255 : 0;
+                    data[i] = data[i + 1] = data[i + 2] = binary;
+                    break;
+                case 'sepia':
+                    data[i] = this.clamp((r * 0.393) + (g * 0.769) + (b * 0.189));
+                    data[i + 1] = this.clamp((r * 0.349) + (g * 0.686) + (b * 0.168));
+                    data[i + 2] = this.clamp((r * 0.272) + (g * 0.534) + (b * 0.131));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        this.ctx.putImageData(tempImageData, 0, 0);
+        this.displayedImageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    clearCanvas() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.originalImageData = null;
+        this.filteredImageData = null;
+        this.displayedImageData = null;
+    }
+
+    clamp(value) {
+        return Math.max(0, Math.min(255, value));
+    }
 }
-function clamp(value) {
-    return Math.max(0, Math.min(255, value));
-}
-// Botones para aplicar filtros
-document.getElementById('grayscaleFilter').addEventListener('click', () => {
-    applyFilter('grayscale');
-});
-
-document.getElementById('negativeFilter').addEventListener('click', () => {
-    applyFilter('negative');
-});
-
-document.getElementById('brightnessFilter').addEventListener('click', () => {
-    applyFilter('brightness');
-});
-
-document.getElementById('binarizationFilter').addEventListener('click', () => {
-    applyFilter('binarization');
-});
-
-document.getElementById('sepiaFilter').addEventListener('click', () => {
-    applyFilter('sepia');
-});
-
-// Manejar el botón de limpiar el lienzo
-document.getElementById('clearCanvas').addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    originalImageData = null;
-    filteredImageData = null;
-    displayedImageData = null;
-});
