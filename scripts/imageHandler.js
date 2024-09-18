@@ -1,3 +1,4 @@
+// Clase para gestionar la imagen
 class ImageHandler {
     constructor(ctx, canvas) {
         this.ctx = ctx;
@@ -14,11 +15,16 @@ class ImageHandler {
         document.getElementById('uploadImage').addEventListener('change', (e) => this.loadImage(e));
         
         // Botones para aplicar filtros
-        document.getElementById('grayscaleFilter').addEventListener('click', () => this.applyFilter('grayscale'));
-        document.getElementById('negativeFilter').addEventListener('click', () => this.applyFilter('negative'));
-        document.getElementById('brightnessFilter').addEventListener('click', () => this.applyFilter('brightness'));
-        document.getElementById('binarizationFilter').addEventListener('click', () => this.applyFilter('binarization'));
-        document.getElementById('sepiaFilter').addEventListener('click', () => this.applyFilter('sepia'));
+        document.getElementById('grayscaleFilter').addEventListener('click', () => this.applyFilter(new GrayscaleFilter()));
+        document.getElementById('negativeFilter').addEventListener('click', () => this.applyFilter(new NegativeFilter()));
+        document.getElementById('brightnessFilter').addEventListener('click', () => this.applyFilter(new BrightnessFilter()));
+        document.getElementById('binarizationFilter').addEventListener('click', () => this.applyFilter(new BinarizationFilter()));
+        document.getElementById('sepiaFilter').addEventListener('click', () => this.applyFilter(new SepiaFilter()));
+        document.getElementById('blurFilter').addEventListener('click', () => this.applyFilter(new BlurFilter()));
+        document.getElementById('edgeDetectionFilter').addEventListener('click', () => this.applyFilter(new EdgeDetectionFilter()));
+        document.getElementById('saturationFilter').addEventListener('click', () => this.applyFilter(new SaturationFilter(1.5)));
+        document.getElementById('EmbossFilter').addEventListener('click', () => this.applyFilter(new EmbossFilter()));
+        
 
         // Manejar el botón de limpiar el lienzo
         document.getElementById('clearCanvas').addEventListener('click', () => this.clearCanvas());
@@ -29,7 +35,7 @@ class ImageHandler {
         if (file) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                const img = new window.Image(); // Usar window.Image para evitar conflicto con la clase
+                const img = new window.Image();
                 img.onload = () => {
                     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                     this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
@@ -57,43 +63,7 @@ class ImageHandler {
         }
 
         const tempImageData = tempCtx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-        const data = tempImageData.data;
-
-        for (let i = 0; i < data.length; i += 4) {
-            let r = data[i], g = data[i + 1], b = data[i + 2];
-
-            switch (filter) {
-                case 'grayscale':
-                    const gray = (r + g + b) / 3;
-                    data[i] = data[i + 1] = data[i + 2] = gray;
-                    break;
-                case 'negative':
-                    data[i] = 255 - r;
-                    data[i + 1] = 255 - g;
-                    data[i + 2] = 255 - b;
-                    break;
-                case 'brightness':
-                    const brightness = 50;
-                    data[i] = this.clamp(r + brightness);
-                    data[i + 1] = this.clamp(g + brightness);
-                    data[i + 2] = this.clamp(b + brightness);
-                    break;
-                case 'binarization':
-                    const threshold = 128;
-                    const average = (r + g + b) / 3;
-                    const binary = average > threshold ? 255 : 0;
-                    data[i] = data[i + 1] = data[i + 2] = binary;
-                    break;
-                case 'sepia':
-                    data[i] = this.clamp((r * 0.393) + (g * 0.769) + (b * 0.189));
-                    data[i + 1] = this.clamp((r * 0.349) + (g * 0.686) + (b * 0.168));
-                    data[i + 2] = this.clamp((r * 0.272) + (g * 0.534) + (b * 0.131));
-                    break;
-                default:
-                    break;
-            }
-        }
-
+        filter.apply(tempImageData.data);
         this.filteredImageData = tempImageData; // Guardar la nueva versión filtrada sin trazos
     }
 
@@ -105,43 +75,7 @@ class ImageHandler {
 
         // Aplicar el filtro sobre la imagen visualizada (incluyendo los trazos)
         const tempImageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-        const data = tempImageData.data;
-
-        for (let i = 0; i < data.length; i += 4) {
-            let r = data[i], g = data[i + 1], b = data[i + 2];
-
-            switch (filter) {
-                case 'grayscale':
-                    const gray = (r + g + b) / 3;
-                    data[i] = data[i + 1] = data[i + 2] = gray;
-                    break;
-                case 'negative':
-                    data[i] = 255 - r;
-                    data[i + 1] = 255 - g;
-                    data[i + 2] = 255 - b;
-                    break;
-                case 'brightness':
-                    const brightness = 50;
-                    data[i] = this.clamp(r + brightness);
-                    data[i + 1] = this.clamp(g + brightness);
-                    data[i + 2] = this.clamp(b + brightness);
-                    break;
-                case 'binarization':
-                    const threshold = 128;
-                    const average = (r + g + b) / 3;
-                    const binary = average > threshold ? 255 : 0;
-                    data[i] = data[i + 1] = data[i + 2] = binary;
-                    break;
-                case 'sepia':
-                    data[i] = this.clamp((r * 0.393) + (g * 0.769) + (b * 0.189));
-                    data[i + 1] = this.clamp((r * 0.349) + (g * 0.686) + (b * 0.168));
-                    data[i + 2] = this.clamp((r * 0.272) + (g * 0.534) + (b * 0.131));
-                    break;
-                default:
-                    break;
-            }
-        }
-
+        filter.apply(tempImageData.data);
         this.ctx.putImageData(tempImageData, 0, 0);
         this.displayedImageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
     }
@@ -151,9 +85,5 @@ class ImageHandler {
         this.originalImageData = null;
         this.filteredImageData = null;
         this.displayedImageData = null;
-    }
-
-    clamp(value) {
-        return Math.max(0, Math.min(255, value));
     }
 }
