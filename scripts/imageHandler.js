@@ -24,6 +24,8 @@ class ImageHandler {
         document.getElementById('edgeDetectionFilter').addEventListener('click', () => this.applyFilter(new EdgeDetectionFilter()));
         document.getElementById('saturationFilter').addEventListener('click', () => this.applyFilter(new SaturationFilter(1.5)));
         document.getElementById('EmbossFilter').addEventListener('click', () => this.applyFilter(new EmbossFilter()));
+        document.getElementById('HeatMapFilter').addEventListener('click', () => this.applyFilter(new HeatMapFilter()));
+        document.getElementById('PosterizeFilter').addEventListener('click', () => this.applyFilter(new PosterizeFilter()));
         
 
         // Manejar el botón de limpiar el lienzo
