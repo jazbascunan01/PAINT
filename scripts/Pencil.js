@@ -9,10 +9,16 @@ class Pencil {
         this.ctx.lineWidth = width;
         this.ctx.lineCap = 'round';
     }
+
     setColor(color) {
         this.color = color; 
         this.ctx.strokeStyle = color;
     }
+
+    setWidth(width) {
+        this.ctx.lineWidth = width;
+    }
+
     setPosition(x, y) {
         this.x = x;
         this.y = y;

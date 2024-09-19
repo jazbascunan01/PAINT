@@ -19,6 +19,18 @@ document.getElementById('uploadImage').addEventListener('change', (e) => {
 document.getElementById('pencilTool').addEventListener('click', () => {
     activeTool = 'pencil';
 });
+// Cambiar el grosor del lápiz
+document.getElementById('pencilWidth').addEventListener('input', (e) => {
+    const newWidth = e.target.value;
+    lapiz.setWidth(newWidth);
+});
+// Cambiar el tamaño de la goma
+document.getElementById('eraserSize').addEventListener('input', (e) => {
+    const newSize = e.target.value;
+    goma.setSize(newSize);
+});
+
+
 
 document.getElementById('eraserTool').addEventListener('click', () => {
     activeTool = 'eraser';

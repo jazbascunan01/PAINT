@@ -7,6 +7,10 @@ class Eraser {
         this.imageHandler = imageHandler; // Referencia a ImageHandler
     }
 
+    setSize(size) {
+        this.size = size;
+    }
+
     startErase(x, y) {
         this.lastX = Math.floor(x);
         this.lastY = Math.floor(y);
@@ -61,8 +65,8 @@ class Eraser {
     }
 
     getRegionFromOriginal(originalImageData, x, y, width, height) {
-        let validWidth = Math.min(width, originalImageData.width - x); // Asegura que no salga de los límites del canvas
-        let validHeight = Math.min(height, originalImageData.height - y); // Limitar al tamaño de la imagen
+        let validWidth = Math.min(width, originalImageData.width - x); 
+        let validHeight = Math.min(height, originalImageData.height - y); 
 
         if (validWidth > 0 && validHeight > 0) {
             let tempCanvas = document.createElement('canvas');
@@ -92,4 +96,3 @@ class Eraser {
         }
     }
 }
-

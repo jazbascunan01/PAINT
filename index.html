@@ -18,9 +18,17 @@
                 <button id="pencilTool">Pencil</button>
                 <!-- Color Picker para lápiz -->
                 <input type="color" id="pencilColor" title="Choose Pencil Color">
+                <!-- Añade el control de ancho de lápiz en la toolbar -->
+                <label for="pencilWidth">Width</label>
+                <input type="range" id="pencilWidth" min="1" max="50" value="15" title="Choose Pencil Width">
+
 
                 <!-- Goma de borrar -->
                 <button id="eraserTool">Eraser</button>
+                <!-- Añadir control de tamaño de la goma -->
+                <label for="eraserSize">Eraser Size</label>
+                <input type="range" id="eraserSize" min="5" max="100" value="20" title="Choose Eraser Size">
+
 
                 <!-- Cargar Imagen -->
                 <label for="uploadImage">Load Image</label>
@@ -43,7 +51,7 @@
                 <button id="PixelationFilter">PixelationFilter</button>
                 <button id="ComicFilter">ComicFilter</button>
                 <button id="BrokenMirrorFilter">BrokenMirrorFilter</button>
-                
+
 
                 <!-- Guardar Imagen -->
                 <button id="saveImage">Save</button>
