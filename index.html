@@ -33,6 +33,10 @@
                 <!-- Cargar Imagen -->
                 <label for="uploadImage">Load Image</label>
                 <input type="file" id="uploadImage" accept="image/*">
+                <!-- Añadir controles para los modos de imagen -->
+                <button id="modeExpand">Expandido</button>
+                <button id="modeFit">Ajustado</button>
+
 
                 <!-- Filtros Simples -->
                 <button id="negativeFilter">Negative</button>
@@ -62,7 +66,7 @@
         </div>
     </header>
     <canvas id="canvas" width="1000px" height="700px" style="border: 1px solid black;"></canvas>
-    <button id="filtro">aplicar filtro</button>
+
     <script src="scripts/Filters/Filtro.js"></script>
     <script src="scripts/Filters/BinarizationFilter.js"></script>
     <script src="scripts/Filters/BrightnessFilter.js"></script>

@@ -58,11 +58,12 @@ canvas.addEventListener('mousemove', (e) => {
     if (activeTool === 'pencil') {
         lapiz.draw(pos.x, pos.y);
         lapiz.setPosition(pos.x, pos.y);
+        imageHandler.saveDrawing(pos.x, pos.y, 'pencil', lapiz.color, lapiz.width); // Guardar trazo
     } else if (activeTool === 'eraser') {
         goma.erase(pos.x, pos.y);
+        imageHandler.saveDrawing(pos.x, pos.y, 'eraser', null, goma.size); // Guardar trazo de la goma
     }
 });
-
 canvas.addEventListener('mouseup', () => {
     mouseDown = false;
 });
