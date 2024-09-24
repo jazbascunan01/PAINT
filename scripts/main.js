@@ -11,9 +11,9 @@ let imageHandler = new ImageHandler(ctx, canvas);
 let goma = new Eraser(ctx, 20, imageHandler);
 
 // Manejar el botón de cargar imagen
-document.getElementById('uploadImage').addEventListener('change', (e) => {
+/* document.getElementById('uploadImage').addEventListener('change', (e) => {
     imageHandler.loadImage(e);
-});
+}); */
 
 // Cambiar entre lápiz y goma de borrar
 document.getElementById('pencilTool').addEventListener('click', () => {
@@ -50,6 +50,9 @@ canvas.addEventListener('mousedown', (e) => {
     } else if (activeTool === 'eraser') {
         goma.startErase(pos.x, pos.y);
     }
+    else if (activeTool === 'rectangle' || activeTool === 'circle' || activeTool === 'triangle') {
+        manejadorDeFiguras.onMouseDown(e);
+    }
 });
 
 canvas.addEventListener('mousemove', (e) => {
@@ -60,11 +63,15 @@ canvas.addEventListener('mousemove', (e) => {
         lapiz.setPosition(pos.x, pos.y);
     } else if (activeTool === 'eraser') {
         goma.erase(pos.x, pos.y);
+    }else if (activeTool === 'rectangle' || activeTool === 'circle' || activeTool === 'triangle') {
+        manejadorDeFiguras.onMouseMove(e);
     }
 });
-
 canvas.addEventListener('mouseup', () => {
     mouseDown = false;
+    if (activeTool === 'rectangle') {
+        manejadorDeFiguras.onMouseUp(e);
+    }
 });
 
 // Obtener las coordenadas correctas del mouse respecto al lienzo
@@ -96,3 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+// Función para guardar el estado del rectángulo actual antes de redimensionar
+function saveRectState(rect) {
+    rectState.x = rect.x;
+    rectState.y = rect.y;
+    rectState.width = rect.width;
+    rectState.height = rect.height;
+}

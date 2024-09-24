@@ -30,10 +30,12 @@
                 <input type="range" id="eraserSize" min="5" max="100" value="20" title="Choose Eraser Size">
 
 
-                <!-- Cargar Imagen -->
-                <label for="uploadImage">Load Image</label>
-                <input type="file" id="uploadImage" accept="image/*">
-
+                <label for="uploadImageExpanded">Load Expanded Image</label>
+                <input type="file" id="uploadImageExpanded" accept="image/*">
+                
+                <label for="uploadImageAdjusted">Load Adjusted Image</label>
+                <input type="file" id="uploadImageAdjusted" accept="image/*">
+                
                 <!-- Filtros Simples -->
                 <button id="negativeFilter">Negative</button>
                 <button id="brightnessFilter">Brightness</button>
@@ -52,6 +54,11 @@
                 <button id="ComicFilter">ComicFilter</button>
                 <button id="BrokenMirrorFilter">BrokenMirrorFilter</button>
 
+                <!-- Añadir herramientas de figuras -->
+                <button id="rectTool">Rectángulo</button>
+                <button id="circleTool">Círculo</button>
+                <button id="triangleTool">Triángulo</button>
+
 
                 <!-- Guardar Imagen -->
                 <button id="saveImage">Save</button>
@@ -62,7 +69,7 @@
         </div>
     </header>
     <canvas id="canvas" width="1000px" height="700px" style="border: 1px solid black;"></canvas>
-    <button id="filtro">aplicar filtro</button>
+
     <script src="scripts/Filters/Filtro.js"></script>
     <script src="scripts/Filters/BinarizationFilter.js"></script>
     <script src="scripts/Filters/BrightnessFilter.js"></script>

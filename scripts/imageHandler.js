@@ -12,8 +12,12 @@ class ImageHandler {
 
     initialize() {
         // Manejar el botón de cargar imagen
-        document.getElementById('uploadImage').addEventListener('change', (e) => this.loadImage(e));
-        
+       /*  document.getElementById('uploadImage').addEventListener('change', (e) => this.loadImage(e)); */
+        // Manejar el botón de cargar imagen expandida
+        document.getElementById('uploadImageExpanded').addEventListener('change', (e) => this.loadImage(e, true));
+
+        // Manejar el botón de cargar imagen ajustada
+        document.getElementById('uploadImageAdjusted').addEventListener('change', (e) => this.loadImage(e, false));
         // Botones para aplicar filtros
         document.getElementById('grayscaleFilter').addEventListener('click', () => this.applyFilter(new GrayscaleFilter()));
         document.getElementById('negativeFilter').addEventListener('click', () => this.applyFilter(new NegativeFilter()));
@@ -29,13 +33,14 @@ class ImageHandler {
         document.getElementById('PixelationFilter').addEventListener('click', () => this.applyFilter(new PixelationFilter()));
         document.getElementById('ComicFilter').addEventListener('click', () => this.applyFilter(new ComicFilter()));
         document.getElementById('BrokenMirrorFilter').addEventListener('click', () => this.applyFilter(new BrokenMirrorFilter()));
-        
+
 
         // Manejar el botón de limpiar el lienzo
         document.getElementById('clearCanvas').addEventListener('click', () => this.clearCanvas());
     }
 
-    loadImage(e) {
+
+    loadImage(e, expanded) {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
@@ -43,7 +48,11 @@ class ImageHandler {
                 const img = new window.Image();
                 img.onload = () => {
                     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                    this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
+                    if (expanded) {
+                        this.insertImageExpanded(img);
+                    } else {
+                        this.insertImageAdjusted(img);
+                    }
                     this.originalImageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
                     this.displayedImageData = this.originalImageData;
                     this.filteredImageData = null; // Resetear imagen filtrada
@@ -54,6 +63,36 @@ class ImageHandler {
             e.target.value = ''; // Limpiar input
         }
     }
+
+    // Método para insertar la imagen expandida
+    insertImageExpanded(img) {
+        this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    // Método para insertar la imagen ajustada manteniendo proporciones
+    insertImageAdjusted(img) {
+        const canvasAspectRatio = this.canvas.width / this.canvas.height;
+        const imageAspectRatio = img.width / img.height;
+
+        let drawWidth, drawHeight, offsetX, offsetY;
+
+        if (imageAspectRatio > canvasAspectRatio) {
+            // Ajustar según el ancho del canvas
+            drawWidth = this.canvas.width;
+            drawHeight = this.canvas.width / imageAspectRatio;
+            offsetX = 0;
+            offsetY = (this.canvas.height - drawHeight) / 2;
+        } else {
+            // Ajustar según la altura del canvas
+            drawHeight = this.canvas.height;
+            drawWidth = this.canvas.height * imageAspectRatio;
+            offsetX = (this.canvas.width - drawWidth) / 2;
+            offsetY = 0;
+        }
+
+        this.ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+    }
+
 
     createFilteredVersion(filter) {
         const tempCanvas = document.createElement('canvas');
