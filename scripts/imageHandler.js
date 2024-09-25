@@ -47,6 +47,7 @@ class ImageHandler {
             reader.onload = (event) => {
                 const img = new window.Image();
                 img.onload = () => {
+                    saveState('image');
                     this.currentImage = img;  // Guarda la imagen actual
                     this.manejadorDeFiguras.clearShapes(); // Llama al método que limpia las figuras
                     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -120,6 +121,7 @@ class ImageHandler {
     }
 
     applyFilter(filter) {
+        saveState('filter');
         if (!this.originalImageData) return;
 
         // Crear la versión filtrada sin trazos
@@ -130,6 +132,15 @@ class ImageHandler {
         filter.apply(tempImageData.data);
         this.ctx.putImageData(tempImageData, 0, 0);
         this.displayedImageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+    }
+    restoreImageState(imageState) {
+        let img = new Image();
+        img.src = imageState;
+        img.onload = () => {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);  // Limpiar el canvas
+            this.ctx.drawImage(img, 0, 0);  // Redibujar la imagen
+            this.manejadorDeFiguras.redrawShapes();  // Redibujar los trazos si es necesario
+        };
     }
 
     clearCanvas() {

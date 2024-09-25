@@ -12,7 +12,26 @@ const imageHandler = new ImageHandler(ctx, canvas, manejadorDeFiguras);
 // Luego, asignar la referencia de imageHandler a manejadorDeFiguras
 manejadorDeFiguras.imageHandler = imageHandler;
 let goma = new Eraser(ctx, 20, imageHandler);
+let undoStack = [];
+let redoStack = [];
+// Guardar estado con tipo de acción (trazo o filtro)
+function saveState(type) {
+    undoStack.push({ 
+        data: canvas.toDataURL(), 
+        type: type // 'draw' para trazos, 'filter' para filtros
+    });
+    redoStack = [];  // Limpiar el stack de rehacer después de una nueva acción
+}
 
+// Restaurar el estado del canvas
+function restoreState(state) {
+    let img = new Image();
+    img.src = state;
+    img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+    };
+}
 // Manejar el botón de cargar imagen
 /* document.getElementById('uploadImage').addEventListener('change', (e) => {
     imageHandler.loadImage(e);
@@ -47,6 +66,7 @@ document.getElementById('pencilColor').addEventListener('input', (e) => {
 
 canvas.addEventListener('mousedown', (e) => {
     mouseDown = true;
+    saveState('draw');  // Guardar el estado antes de comenzar una nueva acción de dibujo
     let pos = getMousePos(e);
     if (activeTool === 'pencil') {
         lapiz.setPosition(pos.x, pos.y);
@@ -76,7 +96,45 @@ canvas.addEventListener('mouseup', () => {
         manejadorDeFiguras.onMouseUp();
     }
 });
+// Manejo de deshacer
+document.getElementById('undoButton').addEventListener('click', () => {
+    if (undoStack.length > 0) {
+        let lastAction = undoStack.pop();  // Obtener el último estado
+        redoStack.push({
+            data: canvas.toDataURL(),  // Guardar el estado actual para rehacer
+            type: lastAction.type  // Guardar el tipo actual (trazo o filtro)
+        });
+        
+        if (lastAction.type === 'filter') {
+            imageHandler.restoreImageState(lastAction.data);  // Restaurar solo la imagen
+        } else if (lastAction.type === 'draw') {
+            restoreState(lastAction.data);  // Restaurar el estado del canvas (trazos y figuras)
+        }
+        else if( lastAction.type === 'image'){
+            restoreState(lastAction.data);
+        }
+    }
+});
 
+// Manejo de rehacer
+document.getElementById('redoButton').addEventListener('click', () => {
+    if (redoStack.length > 0) {
+        let nextState = redoStack.pop();  // Obtener el siguiente estado del stack de rehacer
+        undoStack.push({
+            data: canvas.toDataURL(),  // Guardar el estado actual en el stack de deshacer
+            type: nextState.type  // Guardar el tipo de la acción
+        });
+
+        if (nextState.type === 'filter') {
+            imageHandler.restoreImageState(nextState.data);  // Restaurar la imagen
+        } else if (nextState.type === 'draw') {
+            restoreState(nextState.data);  // Restaurar trazos y figuras
+        }
+        else if(nextState.type === 'image'){
+            imageHandler.restoreImageState(nextState.data);
+        }
+    }
+});
 // Obtener las coordenadas correctas del mouse respecto al lienzo
 function getMousePos(e) {
     let rect = canvas.getBoundingClientRect();
