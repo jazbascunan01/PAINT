@@ -32,10 +32,10 @@
 
                 <label for="uploadImageExpanded">Load Expanded Image</label>
                 <input type="file" id="uploadImageExpanded" accept="image/*">
-                
+
                 <label for="uploadImageAdjusted">Load Adjusted Image</label>
                 <input type="file" id="uploadImageAdjusted" accept="image/*">
-                
+
                 <!-- Filtros Simples -->
                 <button id="negativeFilter">Negative</button>
                 <button id="brightnessFilter">Brightness</button>
@@ -55,6 +55,13 @@
                 <button id="BrokenMirrorFilter">BrokenMirrorFilter</button>
 
                 <!-- Añadir herramientas de figuras -->
+                <!-- Color Picker para fondo de la figura -->
+                <label for="fillColor">Fill Color</label>
+                <input type="color" id="fillColor" title="Choose Fill Color" value="#0000FF">
+
+                <!-- Color Picker para contorno de la figura -->
+                <label for="strokeColor">Stroke Color</label>
+                <input type="color" id="strokeColor" title="Choose Stroke Color" value="#000000">
                 <button id="rectTool">Rectángulo</button>
                 <button id="circleTool">Círculo</button>
                 <button id="triangleTool">Triángulo</button>
@@ -85,6 +92,11 @@
     <script src="scripts/Filters/PixelationFilter.js"></script>
     <script src="scripts/Filters/ComicFilter.js"></script>
     <script src="scripts/Filters/BrokenMirrorFilter.js"></script>
+    <script src="scripts/Figura.js"></script>
+    <script src="scripts/Rectangulo.js"></script>
+    <script src="scripts/Circulo.js"></script>
+    <script src="scripts/Triangulo.js"></script>
+    <script src="scripts/ManejadorDeFiguras.js"></script>
     <script src="scripts/imageHandler.js"></script>
     <script src="scripts/Pencil.js"></script>
     <script src="scripts/Eraser.js"></script>

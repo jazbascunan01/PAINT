@@ -1,4 +1,3 @@
-
 /** @type { HTMLCanvasElement } */
 let canvas = document.getElementById('canvas');
 /** @type { CanvasRenderingContext2D } */
@@ -7,7 +6,11 @@ let ctx = canvas.getContext('2d');
 let mouseDown = false;
 let lapiz = new Pencil(ctx, 0, 0, 'black', 15);
 let activeTool = 'pencil';
-let imageHandler = new ImageHandler(ctx, canvas);
+const manejadorDeFiguras = new ManejadorDeFiguras(canvas, ctx, null);
+const imageHandler = new ImageHandler(ctx, canvas, manejadorDeFiguras);
+
+// Luego, asignar la referencia de imageHandler a manejadorDeFiguras
+manejadorDeFiguras.imageHandler = imageHandler;
 let goma = new Eraser(ctx, 20, imageHandler);
 
 // Manejar el botón de cargar imagen
@@ -63,14 +66,14 @@ canvas.addEventListener('mousemove', (e) => {
         lapiz.setPosition(pos.x, pos.y);
     } else if (activeTool === 'eraser') {
         goma.erase(pos.x, pos.y);
-    }else if (activeTool === 'rectangle' || activeTool === 'circle' || activeTool === 'triangle') {
+    } else if (activeTool === 'rectangle' || activeTool === 'circle' || activeTool === 'triangle') {
         manejadorDeFiguras.onMouseMove(e);
     }
 });
 canvas.addEventListener('mouseup', () => {
     mouseDown = false;
-    if (activeTool === 'rectangle') {
-        manejadorDeFiguras.onMouseUp(e);
+    if (['rectangle', 'circle', 'triangle', 'hexagon', 'diamond', 'heart', 'arrowUp', 'arrowDown', 'arrowLeft', 'arrowRight', 'star', 'speechBubble'].includes(activeTool)) {
+        manejadorDeFiguras.onMouseUp();
     }
 });
 
@@ -102,6 +105,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Cambiar herramientas de figuras
+document.getElementById('rectTool').addEventListener('click', () => {
+    activeTool = 'rectangle';
+    manejadorDeFiguras.activeTool = 'rectangle';
+});
+
+document.getElementById('circleTool').addEventListener('click', () => {
+    activeTool = 'circle';
+    manejadorDeFiguras.activeTool = 'circle';
+    console.log("circulo");
+});
+
+document.getElementById('triangleTool').addEventListener('click', () => {
+    activeTool = 'triangle';
+    manejadorDeFiguras.activeTool = 'triangle';
+    console.log("Triangulo");
+});
 
 // Función para guardar el estado del rectángulo actual antes de redimensionar
 function saveRectState(rect) {

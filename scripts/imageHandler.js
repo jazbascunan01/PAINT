@@ -6,13 +6,13 @@ class ImageHandler {
         this.originalImageData = null;  // Imagen original
         this.filteredImageData = null;  // Imagen filtrada sin trazos
         this.displayedImageData = null; // Imagen visualizada con los trazos
-
+        this.manejadorDeFiguras = manejadorDeFiguras; // Guardar la referencia
         this.initialize();
     }
 
     initialize() {
         // Manejar el botón de cargar imagen
-       /*  document.getElementById('uploadImage').addEventListener('change', (e) => this.loadImage(e)); */
+        /*  document.getElementById('uploadImage').addEventListener('change', (e) => this.loadImage(e)); */
         // Manejar el botón de cargar imagen expandida
         document.getElementById('uploadImageExpanded').addEventListener('change', (e) => this.loadImage(e, true));
 
@@ -47,6 +47,8 @@ class ImageHandler {
             reader.onload = (event) => {
                 const img = new window.Image();
                 img.onload = () => {
+                    this.currentImage = img;  // Guarda la imagen actual
+                    this.manejadorDeFiguras.clearShapes(); // Llama al método que limpia las figuras
                     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                     if (expanded) {
                         this.insertImageExpanded(img);
@@ -63,6 +65,12 @@ class ImageHandler {
             e.target.value = ''; // Limpiar input
         }
     }
+    renderImage() {
+        if (this.currentImage) {
+            this.ctx.drawImage(this.currentImage, 0, 0, this.canvas.width, this.canvas.height);
+        }
+    }
+
 
     // Método para insertar la imagen expandida
     insertImageExpanded(img) {
