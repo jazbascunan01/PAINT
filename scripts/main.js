@@ -130,3 +130,29 @@ function saveRectState(rect) {
     rectState.width = rect.width;
     rectState.height = rect.height;
 }
+// Seleccionar el color de fondo
+document.getElementById('backgroundColor').addEventListener('input', (e) => {
+    const newBgColor = e.target.value;
+    setBackgroundColor(newBgColor);
+});
+
+function setBackgroundColor(color) {
+    // Crear un nuevo canvas temporal para preservar el contenido actual del canvas
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+
+    // Configurar el tamaño del canvas temporal al tamaño del canvas original
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+
+    // Copiar el contenido actual del canvas al canvas temporal
+    tempCtx.drawImage(canvas, 0, 0);
+
+    // Aplicar el color de fondo al canvas original
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Redibujar el contenido guardado del canvas temporal sobre el canvas original
+    ctx.drawImage(tempCanvas, 0, 0);
+}
+
