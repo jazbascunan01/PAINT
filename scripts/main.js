@@ -1,3 +1,8 @@
+/*|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|*/
+/*|                                          |*/
+/*|           CONFIGURACIÓN INICIAL          |*/
+/*|                                          |*/
+/*|__________________________________________|*/
 /** @type { HTMLCanvasElement } */
 let canvas = document.getElementById('canvas');
 /** @type { CanvasRenderingContext2D } */
@@ -14,6 +19,12 @@ manejadorDeFiguras.imageHandler = imageHandler;
 let goma = new Eraser(ctx, 20, imageHandler);
 let undoStack = [];
 let redoStack = [];
+
+/*|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|*/
+/*|                                          |*/
+/*|           FUNCIONES DE UTILIDAD          |*/
+/*|                                          |*/
+/*|__________________________________________|*/
 
 /**
  * Guarda el estado actual del canvas con el tipo de acción especificada.
@@ -69,6 +80,25 @@ function initializeMainButtons() {
         }
     });
 }
+/**
+ * Descarga la imagen del canvas en formato PNG.
+ */
+function handleDownloadButton() {
+    if (canvas) {
+        const link = document.createElement('a');
+        link.download = 'canvas_image.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } else {
+        console.error('El elemento canvas no se encontró.');
+    }
+}
+
+/*|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|*/
+/*|                                          |*/
+/*|    FUNCIONES DE CONTROL DE HISTORIAL     |*/
+/*|                                          |*/
+/*|__________________________________________|*/
 
 /**
  * Maneja la acción de deshacer (undo), restaurando el último estado guardado.
@@ -93,9 +123,9 @@ function handleUndo() {
     }
     updateUndoRedoButtons();
 }
-function resetHistory(){
+function resetHistory() {
     undoStack = [];
-        redoStack = [];
+    redoStack = [];
 }
 /**
  * Maneja la acción de rehacer (redo), aplicando el siguiente estado guardado.
@@ -119,20 +149,21 @@ function handleRedo() {
         updateUndoRedoButtons();
     }
 }
-
 /**
- * Descarga la imagen del canvas en formato PNG.
+ * Actualiza los botones de deshacer (undo) y rehacer (redo) según las acciones disponibles.
  */
-function handleDownloadButton() {
-    if (canvas) {
-        const link = document.createElement('a');
-        link.download = 'canvas_image.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-    } else {
-        console.error('El elemento canvas no se encontró.');
-    }
+function updateUndoRedoButtons() {
+    const undoButton = document.getElementById('undoButton');
+    const redoButton = document.getElementById('redoButton');
+    undoButton.disabled = undoStack.length === 0;
+    redoButton.disabled = redoStack.length === 0;
 }
+
+/*|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|*/
+/*|                                          |*/
+/*|          FUNCIONES DE INTERFAZ           |*/
+/*|                                          |*/
+/*|__________________________________________|*/
 
 /**
  * Cambia el color de fondo del canvas.
@@ -149,15 +180,6 @@ function setBackgroundColor(color) {
     ctx.drawImage(tempCanvas, 0, 0);
 }
 
-/**
- * Actualiza los botones de deshacer (undo) y rehacer (redo) según las acciones disponibles.
- */
-function updateUndoRedoButtons() {
-    const undoButton = document.getElementById('undoButton');
-    const redoButton = document.getElementById('redoButton');
-    undoButton.disabled = undoStack.length === 0;
-    redoButton.disabled = redoStack.length === 0;
-}
 
 /**
  * Configura la navegación de pestañas, permitiendo cambiar entre herramientas y filtros.
@@ -194,15 +216,11 @@ function updateTabs(tabId) {
     document.getElementById(tabId).classList.add('active');
 }
 
-// Llamar a la función cuando el DOM esté completamente cargado
-document.addEventListener('DOMContentLoaded', () => {
-    initializeMainButtons();
-    setupTabNavigation();
-    document.getElementById('filtersTabButton').disabled = true;
-    document.getElementById('undoButton').disabled = true;
-    document.getElementById('redoButton').disabled = true;
-});
-
+/*|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|*/
+/*|                                          |*/
+/*|         MANEJO DE EVENTOS DEL MOUSE      |*/
+/*|                                          |*/
+/*|__________________________________________|*/
 // Eventos de mouse en el canvas
 canvas.addEventListener('mousedown', (e) => {
     mouseDown = true;
@@ -241,10 +259,19 @@ canvas.addEventListener('mouseup', () => {
  * Obtiene la posición del mouse en el canvas.
  * @param {MouseEvent} e - El evento del mouse.
  * @returns {Object} La posición x e y del mouse.
- */
+*/
 function getMousePos(e) {
     let rect = canvas.getBoundingClientRect();
     let x = e.clientX - rect.left;
     let y = e.clientY - rect.top;
     return { x, y };
 }
+
+// Llamar a la función cuando el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', () => {
+    initializeMainButtons();
+    setupTabNavigation();
+    document.getElementById('filtersTabButton').disabled = true;
+    document.getElementById('undoButton').disabled = true;
+    document.getElementById('redoButton').disabled = true;
+});

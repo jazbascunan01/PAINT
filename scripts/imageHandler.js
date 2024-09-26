@@ -70,13 +70,17 @@ class ImageHandler {
             updateTabs('toolsTab');
         }
     }
-
+    /**
+     * Carga una imagen en el canvas.
+     * @param {Event} e - Evento de cambio que contiene el archivo de imagen.
+     * @param {boolean} expanded - Indica si la imagen se debe cargar expandida.
+     */
     loadImage(e, expanded) {
-        const file = e.target.files[0];
+        const file = e.target.files[0]; // Obtener el archivo seleccionado
         if (file) {
-            const reader = new FileReader();
+            const reader = new FileReader();// Crear un objeto FileReader
             reader.onload = (event) => {
-                const img = new window.Image();
+                const img = new window.Image();// Crear un objeto de imagen
                 img.onload = () => {
                     saveState('image');
                     this.currentImage = img;  // Guarda la imagen actual
@@ -98,19 +102,28 @@ class ImageHandler {
             document.getElementById('filtersTabButton').disabled = false;
         }
     }
+    /**
+     * Renderiza la imagen actual en el canvas.
+     */
     renderImage() {
         if (this.currentImage) {
-            this.ctx.drawImage(this.currentImage, 0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.drawImage(this.currentImage, 0, 0, this.canvas.width, this.canvas.height);// Dibujar la imagen actual
         }
     }
 
 
-    // Método para insertar la imagen expandida
+    /**
+     * Método para insertar la imagen expandida en el canvas.
+     * @param {HTMLImageElement} img - La imagen a insertar.
+     */
     insertImageExpanded(img) {
-        this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);// Dibujar la imagen expandida
     }
 
-    // Método para insertar la imagen ajustada manteniendo proporciones
+    /**
+     * Método para insertar la imagen ajustada manteniendo proporciones.
+     * @param {HTMLImageElement} img - La imagen a insertar.
+     */
     insertImageAdjusted(img) {
         const canvasAspectRatio = this.canvas.width / this.canvas.height;
         const imageAspectRatio = img.width / img.height;
@@ -134,7 +147,10 @@ class ImageHandler {
         this.ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
     }
 
-
+    /**
+     * Crea una versión filtrada de la imagen.
+     * @param {Object} filter - El filtro a aplicar.
+     */
     createFilteredVersion(filter) {
         const tempCanvas = document.createElement('canvas');
         const tempCtx = tempCanvas.getContext('2d');
@@ -151,7 +167,10 @@ class ImageHandler {
         filter.apply(tempImageData.data);
         this.filteredImageData = tempImageData; // Guardar la nueva versión filtrada sin trazos
     }
-
+    /**
+     * Aplica un filtro a la imagen.
+     * @param {Object} filter - El filtro a aplicar.
+     */
     applyFilter(filter) {
         saveState('filter');
         if (!this.originalImageData) return;
@@ -174,7 +193,9 @@ class ImageHandler {
             this.manejadorDeFiguras.redrawShapes();  // Redibujar los trazos si es necesario
         };
     }
-
+    /**
+     * Limpia el canvas.
+     */
     clearCanvas() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.originalImageData = null;
