@@ -34,6 +34,7 @@ class ImageHandler {
             { id: 'ComicFilter', event: 'click', handler: () => this.applyFilter(new ComicFilter()) },
             { id: 'BrokenMirrorFilter', event: 'click', handler: () => this.applyFilter(new BrokenMirrorFilter()) },
             { id: 'clearCanvas', event: 'click', handler: () => this.clearCanvas() },
+            { id: 'resetImageButton', event: 'click', handler: () => this.resetImage() },
         ];
 
         // Iterar sobre los elementos y agregar los eventListeners solo si están presentes en el DOM
@@ -48,6 +49,27 @@ class ImageHandler {
         this.isInitialized = true;
     }
 
+    /**
+     * Reinicia la imagen a su estado original.
+     */
+    resetImage() {
+        if (this.originalImageData) {
+            saveState('image');
+            // Limpiar el canvas
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            // Dibujar la imagen original usando putImageData
+            this.ctx.putImageData(this.originalImageData, 0, 0);
+            // Reiniciar cualquier estado necesario
+            this.manejadorDeFiguras.clearShapes(); // Limpia las figuras
+
+            // Limpiar los stacks de deshacer y rehacer
+            resetHistory();
+            updateUndoRedoButtons(); // Actualizar los botones de deshacer/rehacer
+
+            // Volver a la pestaña de herramientas
+            updateTabs('toolsTab');
+        }
+    }
 
     loadImage(e, expanded) {
         const file = e.target.files[0];
@@ -159,20 +181,20 @@ class ImageHandler {
         this.filteredImageData = null;
         this.displayedImageData = null;
         document.getElementById('filtersTabButton').disabled = true;
-         // Deshabilitar filtersTabButton y eliminar la clase 'active' de todas las pestañas
-         document.getElementById('filtersTabButton').disabled = true;
-         document.querySelectorAll('.tab-button').forEach(button => {
-             button.classList.remove('active');
-         });
+        // Deshabilitar filtersTabButton y eliminar la clase 'active' de todas las pestañas
+        document.getElementById('filtersTabButton').disabled = true;
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('active');
+        });
 
-         // Agregar la clase 'active' solo a toolsTab
-         document.querySelector('[data-tab="toolsTab"]').classList.add('active');
+        // Agregar la clase 'active' solo a toolsTab
+        document.querySelector('[data-tab="toolsTab"]').classList.add('active');
 
-         // Mostrar el contenido correspondiente (ocultar los otros tabs)
-         document.querySelectorAll('.tab-content').forEach(content => {
-             content.classList.remove('active');
-         });
-         document.getElementById('toolsTab').classList.add('active');
+        // Mostrar el contenido correspondiente (ocultar los otros tabs)
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById('toolsTab').classList.add('active');
 
     }
 }

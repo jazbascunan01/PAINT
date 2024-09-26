@@ -93,7 +93,10 @@ function handleUndo() {
     }
     updateUndoRedoButtons();
 }
-
+function resetHistory(){
+    undoStack = [];
+        redoStack = [];
+}
 /**
  * Maneja la acción de rehacer (redo), aplicando el siguiente estado guardado.
  */
