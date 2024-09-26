@@ -7,36 +7,45 @@ class ImageHandler {
         this.filteredImageData = null;  // Imagen filtrada sin trazos
         this.displayedImageData = null; // Imagen visualizada con los trazos
         this.manejadorDeFiguras = manejadorDeFiguras; // Guardar la referencia
+        this.isInitialized = false;  // Estado para saber si ya se inicializó
         this.initialize();
     }
 
     initialize() {
-        // Manejar el botón de cargar imagen
-        /*  document.getElementById('uploadImage').addEventListener('change', (e) => this.loadImage(e)); */
-        // Manejar el botón de cargar imagen expandida
-        document.getElementById('uploadImageExpanded').addEventListener('change', (e) => this.loadImage(e, true));
+        // Solo inicializa si no se ha hecho antes
+        if (this.isInitialized) return;
 
-        // Manejar el botón de cargar imagen ajustada
-        document.getElementById('uploadImageAdjusted').addEventListener('change', (e) => this.loadImage(e, false));
-        // Botones para aplicar filtros
-        document.getElementById('grayscaleFilter').addEventListener('click', () => this.applyFilter(new GrayscaleFilter()));
-        document.getElementById('negativeFilter').addEventListener('click', () => this.applyFilter(new NegativeFilter()));
-        document.getElementById('brightnessFilter').addEventListener('click', () => this.applyFilter(new BrightnessFilter()));
-        document.getElementById('binarizationFilter').addEventListener('click', () => this.applyFilter(new BinarizationFilter()));
-        document.getElementById('sepiaFilter').addEventListener('click', () => this.applyFilter(new SepiaFilter()));
-        document.getElementById('blurFilter').addEventListener('click', () => this.applyFilter(new BlurFilter()));
-        document.getElementById('edgeDetectionFilter').addEventListener('click', () => this.applyFilter(new EdgeDetectionFilter()));
-        document.getElementById('saturationFilter').addEventListener('click', () => this.applyFilter(new SaturationFilter(1.5)));
-        document.getElementById('EmbossFilter').addEventListener('click', () => this.applyFilter(new EmbossFilter()));
-        document.getElementById('HeatMapFilter').addEventListener('click', () => this.applyFilter(new HeatMapFilter()));
-        document.getElementById('PosterizeFilter').addEventListener('click', () => this.applyFilter(new PosterizeFilter()));
-        document.getElementById('PixelationFilter').addEventListener('click', () => this.applyFilter(new PixelationFilter()));
-        document.getElementById('ComicFilter').addEventListener('click', () => this.applyFilter(new ComicFilter()));
-        document.getElementById('BrokenMirrorFilter').addEventListener('click', () => this.applyFilter(new BrokenMirrorFilter()));
+        // Array de objetos con los elementos y sus respectivos eventos
+        const elementsWithEvents = [
+            { id: 'uploadImageExpanded', event: 'change', handler: (e) => this.loadImage(e, true) },
+            { id: 'uploadImageAdjusted', event: 'change', handler: (e) => this.loadImage(e, false) },
+            { id: 'grayscaleFilter', event: 'click', handler: () => this.applyFilter(new GrayscaleFilter()) },
+            { id: 'negativeFilter', event: 'click', handler: () => this.applyFilter(new NegativeFilter()) },
+            { id: 'brightnessFilter', event: 'click', handler: () => this.applyFilter(new BrightnessFilter()) },
+            { id: 'binarizationFilter', event: 'click', handler: () => this.applyFilter(new BinarizationFilter()) },
+            { id: 'sepiaFilter', event: 'click', handler: () => this.applyFilter(new SepiaFilter()) },
+            { id: 'blurFilter', event: 'click', handler: () => this.applyFilter(new BlurFilter()) },
+            { id: 'edgeDetectionFilter', event: 'click', handler: () => this.applyFilter(new EdgeDetectionFilter()) },
+            { id: 'saturationFilter', event: 'click', handler: () => this.applyFilter(new SaturationFilter(1.5)) },
+            { id: 'EmbossFilter', event: 'click', handler: () => this.applyFilter(new EmbossFilter()) },
+            { id: 'HeatMapFilter', event: 'click', handler: () => this.applyFilter(new HeatMapFilter()) },
+            { id: 'PosterizeFilter', event: 'click', handler: () => this.applyFilter(new PosterizeFilter()) },
+            { id: 'PixelationFilter', event: 'click', handler: () => this.applyFilter(new PixelationFilter()) },
+            { id: 'ComicFilter', event: 'click', handler: () => this.applyFilter(new ComicFilter()) },
+            { id: 'BrokenMirrorFilter', event: 'click', handler: () => this.applyFilter(new BrokenMirrorFilter()) },
+            { id: 'clearCanvas', event: 'click', handler: () => this.clearCanvas() },
+        ];
 
+        // Iterar sobre los elementos y agregar los eventListeners solo si están presentes en el DOM
+        elementsWithEvents.forEach(element => {
+            const domElement = document.getElementById(element.id);
+            if (domElement) {
+                domElement.addEventListener(element.event, element.handler);
+            }
+        });
 
-        // Manejar el botón de limpiar el lienzo
-        document.getElementById('clearCanvas').addEventListener('click', () => this.clearCanvas());
+        // Marcar como inicializado
+        this.isInitialized = true;
     }
 
 
@@ -64,6 +73,7 @@ class ImageHandler {
             };
             reader.readAsDataURL(file);
             e.target.value = ''; // Limpiar input
+            document.getElementById('filtersTabButton').disabled = false;
         }
     }
     renderImage() {
@@ -148,5 +158,21 @@ class ImageHandler {
         this.originalImageData = null;
         this.filteredImageData = null;
         this.displayedImageData = null;
+        document.getElementById('filtersTabButton').disabled = true;
+         // Deshabilitar filtersTabButton y eliminar la clase 'active' de todas las pestañas
+         document.getElementById('filtersTabButton').disabled = true;
+         document.querySelectorAll('.tab-button').forEach(button => {
+             button.classList.remove('active');
+         });
+
+         // Agregar la clase 'active' solo a toolsTab
+         document.querySelector('[data-tab="toolsTab"]').classList.add('active');
+
+         // Mostrar el contenido correspondiente (ocultar los otros tabs)
+         document.querySelectorAll('.tab-content').forEach(content => {
+             content.classList.remove('active');
+         });
+         document.getElementById('toolsTab').classList.add('active');
+
     }
 }
