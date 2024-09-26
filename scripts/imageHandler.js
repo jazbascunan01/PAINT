@@ -195,6 +195,9 @@ class ImageHandler {
             content.classList.remove('active');
         });
         document.getElementById('toolsTab').classList.add('active');
+         // Limpiar los stacks de deshacer y rehacer
+         resetHistory();
+         updateUndoRedoButtons(); // Actualizar los botones de deshacer/rehacer
 
     }
 }
