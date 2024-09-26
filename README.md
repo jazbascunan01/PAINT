@@ -1,3 +1,7 @@
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Canvas](https://img.shields.io/badge/Canvas-2D7D32?style=flat&logo=canvas&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
 # Web Paint App
 
 ## Descripción
@@ -61,10 +65,15 @@ La aplicación está dividida en varias secciones para facilitar su mantenimient
 - **Filtros:** Cada filtro está implementado como una clase separada en la carpeta `scripts/Filters`.
 
 ---
+## Desarrollador
 
-## Contacto
+- Desarrollado por [**Bascuñan Karen Jazmín**](https://jazbascunan01.github.io/).
+- Correo electrónico: jazbascunan01@gmail.com
 
-Si tienes alguna pregunta o comentario, no dudes en contactarme a través de:
+## Enlace al Sitio Web
 
-- **Correo electrónico:** jazbascunan01@gmail.com
-- **GitHub:** [Jazmín Bascuñan](https://github.com/jazbascunan01)
+Puedes acceder a la aplicación en el siguiente enlace: [Web Paint App](https://jazbascunan01.github.io/PAINT/)
+
+## Repositorio en GitHub
+
+El código fuente está disponible en: [https://github.com/jazbascunan01/FIGURAS.git](https://github.com/jazbascunan01/PAINT.git)
