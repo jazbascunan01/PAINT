@@ -15,7 +15,10 @@ let goma = new Eraser(ctx, 20, imageHandler);
 let undoStack = [];
 let redoStack = [];
 
-// Guardar estado con tipo de acción (trazo o filtro)
+/**
+ * Guarda el estado actual del canvas con el tipo de acción especificada.
+ * @param {string} type - El tipo de acción a guardar (trazo o filtro).
+ */
 function saveState(type) {
     undoStack.push({
         data: canvas.toDataURL(),
@@ -25,7 +28,10 @@ function saveState(type) {
     updateUndoRedoButtons();  // Actualizar los botones
 }
 
-// Restaurar el estado del canvas
+/**
+ * Restaura el estado del canvas usando la URL de la imagen guardada.
+ * @param {string} state - La URL del estado del canvas a restaurar.
+ */
 function restoreState(state) {
     let img = new Image();
     img.src = state;
@@ -35,8 +41,10 @@ function restoreState(state) {
     };
 }
 
+/**
+ * Inicializa los botones principales del programa y asigna los manejadores de eventos correspondientes.
+ */
 function initializeMainButtons() {
-    // Lista de botones del main que deben inicializarse
     const buttonsWithEvents = [
         { id: 'pencilTool', event: 'click', handler: () => { activeTool = 'pencil'; } },
         { id: 'pencilWidth', event: 'input', handler: (e) => { const newWidth = e.target.value; lapiz.setWidth(newWidth); } },
@@ -52,7 +60,6 @@ function initializeMainButtons() {
         { id: 'backgroundColor', event: 'input', handler: (e) => { const newBgColor = e.target.value; setBackgroundColor(newBgColor); } }
     ];
 
-    // Iterar y agregar eventListeners si los elementos existen en el DOM
     buttonsWithEvents.forEach(button => {
         const domElement = document.getElementById(button.id);
         if (domElement) {
@@ -63,6 +70,9 @@ function initializeMainButtons() {
     });
 }
 
+/**
+ * Maneja la acción de deshacer (undo), restaurando el último estado guardado.
+ */
 function handleUndo() {
     if (undoStack.length > 0) {
         let lastAction = undoStack.pop();  // Obtener el último estado
@@ -77,29 +87,19 @@ function handleUndo() {
             restoreState(lastAction.data);  // Restaurar el estado del canvas (trazos y figuras)
         } else if (lastAction.type === 'image') {
             restoreState(lastAction.data);
-            // Deshabilitar filtersTabButton y eliminar la clase 'active' de todas las pestañas
             document.getElementById('filtersTabButton').disabled = true;
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('active');
-            });
-
-            // Agregar la clase 'active' solo a toolsTab
-            document.querySelector('[data-tab="toolsTab"]').classList.add('active');
-
-            // Mostrar el contenido correspondiente (ocultar los otros tabs)
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById('toolsTab').classList.add('active');
-
+            updateTabs('toolsTab'); // Habilitar y activar la solapa de herramientas
         }
     }
-    updateUndoRedoButtons();  // Actualizar los botones después de la acción
+    updateUndoRedoButtons();
 }
 
+/**
+ * Maneja la acción de rehacer (redo), aplicando el siguiente estado guardado.
+ */
 function handleRedo() {
     if (redoStack.length > 0) {
-        let nextState = redoStack.pop();  // Obtener el siguiente estado del stack de rehacer
+        let nextState = redoStack.pop();  // Obtener el siguiente estado
         undoStack.push({
             data: canvas.toDataURL(),  // Guardar el estado actual en el stack de deshacer
             type: nextState.type  // Guardar el tipo de la acción
@@ -111,11 +111,15 @@ function handleRedo() {
             restoreState(nextState.data);  // Restaurar trazos y figuras
         } else if (nextState.type === 'image') {
             imageHandler.restoreImageState(nextState.data);
+            document.getElementById('filtersTabButton').disabled = false;
         }
-        updateUndoRedoButtons();  // Actualizar los botones después de la acción
+        updateUndoRedoButtons();
     }
 }
 
+/**
+ * Descarga la imagen del canvas en formato PNG.
+ */
 function handleDownloadButton() {
     if (canvas) {
         const link = document.createElement('a');
@@ -127,6 +131,10 @@ function handleDownloadButton() {
     }
 }
 
+/**
+ * Cambia el color de fondo del canvas.
+ * @param {string} color - El color de fondo a aplicar.
+ */
 function setBackgroundColor(color) {
     const tempCanvas = document.createElement('canvas');
     const tempCtx = tempCanvas.getContext('2d');
@@ -138,15 +146,64 @@ function setBackgroundColor(color) {
     ctx.drawImage(tempCanvas, 0, 0);
 }
 
-// Inicializar cuando el DOM esté cargado
+/**
+ * Actualiza los botones de deshacer (undo) y rehacer (redo) según las acciones disponibles.
+ */
+function updateUndoRedoButtons() {
+    const undoButton = document.getElementById('undoButton');
+    const redoButton = document.getElementById('redoButton');
+    undoButton.disabled = undoStack.length === 0;
+    redoButton.disabled = redoStack.length === 0;
+}
+
+/**
+ * Configura la navegación de pestañas, permitiendo cambiar entre herramientas y filtros.
+ */
+function setupTabNavigation() {
+    const tabs = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function () {
+            tabs.forEach(btn => btn.classList.remove('active'));  // Limpiar todas las solapas activas
+            this.classList.add('active');  // Activar la solapa actual
+
+            tabContents.forEach(content => content.classList.remove('active'));  // Ocultar todo el contenido
+            const selectedTab = this.getAttribute('data-tab');
+            document.getElementById(selectedTab).classList.add('active');
+        });
+    });
+}
+
+/**
+ * Actualiza la interfaz de las solapas, mostrando la solapa seleccionada y desactivando las otras.
+ * @param {string} tabId - El ID de la solapa a activar.
+ */
+function updateTabs(tabId) {
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+    });
+    document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(tabId).classList.add('active');
+}
+
+// Llamar a la función cuando el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
     initializeMainButtons();
+    setupTabNavigation();
+    document.getElementById('filtersTabButton').disabled = true;
+    document.getElementById('undoButton').disabled = true;
+    document.getElementById('redoButton').disabled = true;
 });
 
-// Manejo de eventos de mouse
+// Eventos de mouse en el canvas
 canvas.addEventListener('mousedown', (e) => {
     mouseDown = true;
-    saveState('draw');  // Guardar el estado antes de comenzar una nueva acción de dibujo
+    saveState('draw');
     let pos = getMousePos(e);
     if (activeTool === 'pencil') {
         lapiz.setPosition(pos.x, pos.y);
@@ -177,49 +234,14 @@ canvas.addEventListener('mouseup', () => {
     }
 });
 
+/**
+ * Obtiene la posición del mouse en el canvas.
+ * @param {MouseEvent} e - El evento del mouse.
+ * @returns {Object} La posición x e y del mouse.
+ */
 function getMousePos(e) {
     let rect = canvas.getBoundingClientRect();
     let x = e.clientX - rect.left;
     let y = e.clientY - rect.top;
     return { x, y };
 }
-// Función para cambiar entre solapas
-function setupTabNavigation() {
-    const tabs = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function () {
-            // Remover clase 'active' de todos los botones de las solapas
-            tabs.forEach(btn => btn.classList.remove('active'));
-
-            // Añadir la clase 'active' al botón de solapa actual
-            this.classList.add('active');
-
-            // Ocultar todo el contenido de las solapas
-            tabContents.forEach(content => content.classList.remove('active'));
-
-            // Mostrar el contenido correspondiente a la solapa actual
-            const selectedTab = this.getAttribute('data-tab');
-            document.getElementById(selectedTab).classList.add('active');
-        });
-    });
-}
-function updateUndoRedoButtons() {
-    const undoButton = document.getElementById('undoButton');
-    const redoButton = document.getElementById('redoButton');
-    
-    // Si no hay acciones en el undoStack, deshabilitar el botón de deshacer
-    undoButton.disabled = undoStack.length === 0;
-
-    // Si no hay acciones en el redoStack, deshabilitar el botón de rehacer
-    redoButton.disabled = redoStack.length === 0;
-}
-
-// Llamar a la función cuando el DOM esté completamente cargado
-document.addEventListener('DOMContentLoaded', () => {
-    setupTabNavigation();
-    document.getElementById('filtersTabButton').disabled = true;
-    document.getElementById('undoButton').disabled = true;
-    document.getElementById('redoButton').disabled = true;
-});
