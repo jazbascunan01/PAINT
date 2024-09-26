@@ -1,54 +1,215 @@
+@font-face {
+    font-family: 'klonp'; /* Nombre personalizado para la fuente */
+    src: url('./font/KLONP.ttf') format('truetype'); /* Ruta a la fuente y su formato */
+    font-weight: normal;
+    font-style: normal;
+}
 body {
+/*     font-family: Arial, sans-serif; */
     margin: 0;
-    font-family: Arial, sans-serif;
+    padding: 0;
+    background-color: #d1deda;
+    font-family: monospace;
 }
-.containerHeader{
+
+.containerHeader {
+    background-color: #f1f1f1;
+    padding: 0px;
+    border-bottom: 1px solid #ccc;
+}
+
+h1 {
+    margin: 0;
+    padding: 0.5%;
+    font-size: 50px;
+    color: white;
+    text-align: center;
+    background-color: #348083;
+    font-family: 'klonp';
+    padding-bottom: 0%;
+/*     border-bottom: 2px solid #38616c; */
+}
+
+.tabs {
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
+    padding-top: 15px;
+    background-color: #348083;
 }
-header {
-    background-color: #f4f4f4;
-    border-bottom: 1px solid #ddd;
-    padding: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+
+.tab-button {
+    background-color: #e6e6e6;
+    border: 1px solid #ccc;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin-right: 5px;
+    color: black;
+    font-size: larger;
+    font-family: monospace;
 }
+
+.tab-button.active {
+    background: #348083;
+    color: white;
+}
+
+.tab-content {
+    display: none;
+    text-align: center;
+}
+
+.tab-content.active {
+    display: block;
+}
+
 .toolbar {
     display: flex;
-    gap: 15px;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px 0;
+    background-color: #509b9e;
 }
-.toolbar button {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    padding: 10px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+
+button, input[type="range"], input[type="color"], label {
+    margin-right: 10px;
 }
-.toolbar button:hover {
-    background-color: #e0e0e0;
+label{
+    font-size: x-large;
 }
-.toolbar input[type="color"] {
-    padding: 0;
-    width: 40px;
-    height: 40px;
-    border: none;
-    cursor: pointer;
+#canvas {
+    display: block;
+    margin: 0 auto;
+    background-color: white;
 }
-.toolbar input[type="file"] {
+input[type="color"]{
+    height: 90%;
+    background-color: #88cec8;
+}
+input[type="color"], input[type="file"] {
+    padding: 5px;
+    border-radius: 4px;
+}
+
+input[type="range"] {
+    vertical-align: middle;
+}
+.hidden {
     display: none;
 }
-.toolbar label {
-    background-color: #fff;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+
+.tab-content.active {
+    display: block;
 }
-.toolbar label:hover {
-    background-color: #e0e0e0;
+
+.tabs {
+    display: flex;
+    justify-content: flex-start;
+/*     border-bottom: 2px solid #ccc; */
+}
+
+.tab-button {
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+    background: #aeddc9;
+    color: black;
+    font-size: large;
+    margin: 0 0.5%;
+    border-radius: 10px 10px 0 0;
+    transition: background-color 1s cubic-bezier(0.42, 0, 0.58, 1), color 0.5s cubic-bezier(0.42, 0, 0.58, 1);
+}
+.tab-button:hover, #pencilTool:hover,#eraserTool:hover, .backgroundColor:hover, #HeatMapFilter:hover,#EmbossFilter:hover, #blurFilter:hover, #edgeDetectionFilter:hover,#saturationFilter:hover, #grayscaleFilter:hover,#sepiaFilter:hover,#binarizationFilter:hover,#brightnessFilter:hover,#negativeFilter:hover, #rectTool:hover,#circleTool:hover,#triangleTool:hover, #expandida:hover,#ajustada:hover,input[type="file"]:hover, #resetImageButton:hover, #PixelationFilter:hover,#ComicFilter:hover,#BrokenMirrorFilter:hover,#PosterizeFilter:hover{
+    background-color: #2d618e; /* Cambiar color al pasar el mouse */
+}
+.tab-button.active {
+    background: #509b9e;
+}
+
+.toolbar {
+    padding-top: 20px;
+}
+.upper-toolbar {
+    display: flex;
+    justify-content: left;
+    gap: 15px;
+    background-color: #348083;
+    padding-left: 0.5%;
+    padding-bottom: 0%;
+    padding-top: 0%;
+}
+
+.upper-toolbar button, #pencilTool, #eraserTool, .backgroundColor, #rectTool,#circleTool,#triangleTool,#expandida,#ajustada,#resetImageButton {
+    width: 50px;
+    background-color: #122c66;
+    cursor: pointer;
+    color: white;
+    margin: 0;
+    font-family: monospace;
+    font-size: larger;
+    border-radius: 10px;
+    padding: 7px;
+    box-shadow: 5px 5px 15px rgb(0 0 0);
+    transition: background-color 1s cubic-bezier(0.42, 0, 0.58, 1), color 0.5s cubic-bezier(0.42, 0, 0.58, 1);
+    height: 50px;
+}
+#HeatMapFilter,#EmbossFilter, #blurFilter, #edgeDetectionFilter,#saturationFilter, #grayscaleFilter,#sepiaFilter,#binarizationFilter,#brightnessFilter,#negativeFilter, #PixelationFilter,#ComicFilter,#BrokenMirrorFilter,#PosterizeFilter{
+    width: max-content;
+    background-color: #122c66;
+    cursor: pointer;
+    color: white;
+    margin: 0;
+    font-family: monospace;
+    font-size: medium;
+    border-radius: 10px;
+    padding: 7px;
+    box-shadow: 5px 5px 15px rgb(0 0 0);
+    transition: background-color 1s cubic-bezier(0.42, 0, 0.58, 1), color 0.5s cubic-bezier(0.42, 0, 0.58, 1);
+}
+
+.upper-toolbar button i {
+    pointer-events: none; /* Para que el icono no interfiera con el click */
+}
+
+.upper-toolbar button:hover {
+    background-color: #d4d4d4;
+}
+
+button img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+input[type="file"] {
+    display: none; /* Ocultar el input real */
+}
+.img_butt{
+width: 20px;
+margin: 2px;
+}
+#expandida, #ajustada{
+    padding: 0% 1%;
+    margin: 1%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    width: max-content;
+    font-size: medium;
+}
+#imageTab.active{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+button:disabled{
+    background-color: gray;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+button:disabled:hover {
+    transform: none;
+    transition: none;
+    cursor: no-drop !important;
+    background-color: gray;
 }

@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paint</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Añadir Font Awesome en el head -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 </head>
 
 <body>
@@ -13,59 +16,77 @@
     <header>
         <div class="containerHeader">
             <h1>Web Paint App</h1>
+            <!-- Barra superior con iconos para deshacer, rehacer, guardar y reiniciar -->
+            <div class="upper-toolbar">
+                <button id="undoButton" title="Deshacer"><i class="fas fa-undo"></i></button>
+                <button id="redoButton" title="Rehacer"><i class="fas fa-redo"></i></button>
+                <button id="saveImage" title="Guardar"><i class="fas fa-save"></i></button>
+                <button id="clearCanvas" title="Reiniciar Canvas"><i class="fas fa-trash-alt"></i></button>
+            </div>
+            <div class="tabs">
+                <button class="tab-button active" data-tab="toolsTab">Herramientas</button>
+                <button class="tab-button" data-tab="shapesTab">Figuras</button>
+                <button class="tab-button" data-tab="imageTab">Imagen</button>
+                <button class="tab-button" id="filtersTabButton" data-tab="filtersTab" disabled>Filtros</button>
+            </div>
             <div class="toolbar">
-                <!-- Lápiz -->
-                <button id="pencilTool">Pencil</button>
-                <!-- Color Picker para lápiz -->
-                <input type="color" id="pencilColor" title="Choose Pencil Color">
-                <!-- Añade el control de ancho de lápiz en la toolbar -->
-                <label for="pencilWidth">Width</label>
-                <input type="range" id="pencilWidth" min="1" max="50" value="15" title="Choose Pencil Width">
 
+                <!-- Herramientas -->
+                <div id="toolsTab" class="tab-content active">
+                    <button id="pencilTool"><img class="img_button" src="images/lapiz1.png" alt=""></button>
+                    <input type="color" id="pencilColor" title="Elige el color del lápiz">
+                    <label for="pencilWidth">Ancho</label>
+                    <input type="range" id="pencilWidth" min="1" max="50" value="15" title="Elige el ancho del lápiz">
 
-                <!-- Goma de borrar -->
-                <button id="eraserTool">Eraser</button>
-                <!-- Añadir control de tamaño de la goma -->
-                <label for="eraserSize">Eraser Size</label>
-                <input type="range" id="eraserSize" min="5" max="100" value="20" title="Choose Eraser Size">
+                    <button id="eraserTool"><img class="img_button" src="images/goma1.png" alt=""></button>
+                    <label for="eraserSize">Tamaño de goma</label>
+                    <input type="range" id="eraserSize" min="5" max="100" value="20" title="Elige el tamaño de la goma">
 
+                    <button class="backgroundColor" for="backgroundColor"><img src="images/pintura1.png"
+                            alt=""></button>
+                    <input type="color" id="backgroundColor" title="Choose Background Color" value="#FFFFFF">
+                </div>
 
-                <!-- Cargar Imagen -->
-                <label for="uploadImage">Load Image</label>
-                <input type="file" id="uploadImage" accept="image/*">
-                <!-- Añadir controles para los modos de imagen -->
-                <button id="modeExpand">Expandido</button>
-                <button id="modeFit">Ajustado</button>
+                <!-- Filtros -->
+                <div id="filtersTab" class="tab-content">
+                    <button id="negativeFilter">Negativo</button>
+                    <button id="brightnessFilter">Brillo</button>
+                    <button id="binarizationFilter">Binarización</button>
+                    <button id="sepiaFilter">Sepia</button>
+                    <button id="grayscaleFilter">Escala de grises</button>
+                    <button id="saturationFilter">Saturación</button>
+                    <button id="edgeDetectionFilter">Detección de bordes</button>
+                    <button id="blurFilter">Desenfoque</button>
+                    <button id="EmbossFilter">Relieve</button>
+                    <button id="HeatMapFilter">Mapa de calor</button>
+                    <button id="PosterizeFilter">PosterizeFilter</button>
+                    <button id="PixelationFilter">PixelationFilter</button>
+                    <button id="ComicFilter">ComicFilter</button>
+                    <button id="BrokenMirrorFilter">BrokenMirrorFilter</button>
+                </div>
 
+                <!-- Figuras -->
+                <div id="shapesTab" class="tab-content">
+                    <button id="rectTool"><img src="images/rectangulo.png" alt=""></button>
+                    <button id="circleTool"><img src="images/circulo.png" alt=""></button>
+                    <button id="triangleTool"><img src="images/triangulo.png" alt=""></button>
+                </div>
 
-                <!-- Filtros Simples -->
-                <button id="negativeFilter">Negative</button>
-                <button id="brightnessFilter">Brightness</button>
-                <button id="binarizationFilter">Binarization</button>
-                <button id="sepiaFilter">Sepia</button>
-                <button id="grayscaleFilter">Escala de grises</button>
+                <!-- Imagen -->
+                <div id="imageTab" class="tab-content">
+                    <label for="uploadImageExpanded" id="expandida"><img class="img_butt" src="images/expandida.png"
+                            alt=""> Cargar imagen expandida</label>
+                    <input type="file" id="uploadImageExpanded" accept="image/*">
+                    <label for="uploadImageAdjusted" id="ajustada"><img class="img_butt" src="images/ajustada.png"
+                            alt="">Cargar imagen ajustada</label>
+                    <input type="file" id="uploadImageAdjusted" accept="image/*">
+                    <button id="resetImageButton"><img class="resetimage" src="images/reiniciar.png" alt=""></button>
+                </div>
 
-                <!-- Filtros Avanzados -->
-                <button id="saturationFilter">Saturation</button>
-                <button id="edgeDetectionFilter">Edge Detection</button>
-                <button id="blurFilter">Blur</button>
-                <button id="EmbossFilter">EmbossFilter</button>
-                <button id="HeatMapFilter">HeatMapFilter</button>
-                <button id="PosterizeFilter">PosterizeFilter</button>
-                <button id="PixelationFilter">PixelationFilter</button>
-                <button id="ComicFilter">ComicFilter</button>
-                <button id="BrokenMirrorFilter">BrokenMirrorFilter</button>
-
-
-                <!-- Guardar Imagen -->
-                <button id="saveImage">Save</button>
-
-                <!-- Descartar Imagen -->
-                <button id="clearCanvas">Clear Canvas</button>
             </div>
         </div>
     </header>
-    <canvas id="canvas" width="1000px" height="700px" style="border: 1px solid black;"></canvas>
+    <canvas id="canvas" width="1250px" height="700px" style="border: 1px solid black;"></canvas>
 
     <script src="scripts/Filters/Filtro.js"></script>
     <script src="scripts/Filters/BinarizationFilter.js"></script>
@@ -82,6 +103,11 @@
     <script src="scripts/Filters/PixelationFilter.js"></script>
     <script src="scripts/Filters/ComicFilter.js"></script>
     <script src="scripts/Filters/BrokenMirrorFilter.js"></script>
+    <script src="scripts/Figura.js"></script>
+    <script src="scripts/Rectangulo.js"></script>
+    <script src="scripts/Circulo.js"></script>
+    <script src="scripts/Triangulo.js"></script>
+    <script src="scripts/ManejadorDeFiguras.js"></script>
     <script src="scripts/imageHandler.js"></script>
     <script src="scripts/Pencil.js"></script>
     <script src="scripts/Eraser.js"></script>

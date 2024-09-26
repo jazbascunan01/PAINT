@@ -1,4 +1,8 @@
-
+/*|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|*/
+/*|                                          |*/
+/*|           CONFIGURACIÓN INICIAL          |*/
+/*|                                          |*/
+/*|__________________________________________|*/
 /** @type { HTMLCanvasElement } */
 let canvas = document.getElementById('canvas');
 /** @type { CanvasRenderingContext2D } */
@@ -7,48 +11,227 @@ let ctx = canvas.getContext('2d');
 let mouseDown = false;
 let lapiz = new Pencil(ctx, 0, 0, 'black', 15);
 let activeTool = 'pencil';
-let imageHandler = new ImageHandler(ctx, canvas);
+const manejadorDeFiguras = new ManejadorDeFiguras(canvas, ctx, null);
+const imageHandler = new ImageHandler(ctx, canvas, manejadorDeFiguras);
+
+// Asignar la referencia de imageHandler a manejadorDeFiguras
+manejadorDeFiguras.imageHandler = imageHandler;
 let goma = new Eraser(ctx, 20, imageHandler);
+let undoStack = [];
+let redoStack = [];
 
-// Manejar el botón de cargar imagen
-document.getElementById('uploadImage').addEventListener('change', (e) => {
-    imageHandler.loadImage(e);
-});
+/*|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|*/
+/*|                                          |*/
+/*|           FUNCIONES DE UTILIDAD          |*/
+/*|                                          |*/
+/*|__________________________________________|*/
 
-// Cambiar entre lápiz y goma de borrar
-document.getElementById('pencilTool').addEventListener('click', () => {
-    activeTool = 'pencil';
-});
-// Cambiar el grosor del lápiz
-document.getElementById('pencilWidth').addEventListener('input', (e) => {
-    const newWidth = e.target.value;
-    lapiz.setWidth(newWidth);
-});
-// Cambiar el tamaño de la goma
-document.getElementById('eraserSize').addEventListener('input', (e) => {
-    const newSize = e.target.value;
-    goma.setSize(newSize);
-});
+/**
+ * Guarda el estado actual del canvas con el tipo de acción especificada.
+ * @param {string} type - El tipo de acción a guardar (trazo o filtro).
+ */
+function saveState(type) {
+    undoStack.push({
+        data: canvas.toDataURL(),
+        type: type // 'draw' para trazos, 'filter' para filtros
+    });
+    redoStack = [];  // Limpiar el stack de rehacer después de una nueva acción
+    updateUndoRedoButtons();  // Actualizar los botones
+}
+
+/**
+ * Restaura el estado del canvas usando la URL de la imagen guardada.
+ * @param {string} state - La URL del estado del canvas a restaurar.
+ */
+function restoreState(state) {
+    let img = new Image();
+    img.src = state;
+    img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+    };
+}
+
+/**
+ * Inicializa los botones principales del programa y asigna los manejadores de eventos correspondientes.
+ */
+function initializeMainButtons() {
+    const buttonsWithEvents = [
+        { id: 'pencilTool', event: 'click', handler: () => { activeTool = 'pencil'; } },
+        { id: 'pencilWidth', event: 'input', handler: (e) => { const newWidth = e.target.value; lapiz.setWidth(newWidth); } },
+        { id: 'eraserSize', event: 'input', handler: (e) => { const newSize = e.target.value; goma.setSize(newSize); } },
+        { id: 'eraserTool', event: 'click', handler: () => { activeTool = 'eraser'; } },
+        { id: 'pencilColor', event: 'input', handler: (e) => { const newColor = e.target.value; lapiz.setColor(newColor); } },
+        { id: 'undoButton', event: 'click', handler: handleUndo },
+        { id: 'redoButton', event: 'click', handler: handleRedo },
+        { id: 'saveImage', event: 'click', handler: handleDownloadButton },
+        { id: 'rectTool', event: 'click', handler: () => { activeTool = 'rectangle'; manejadorDeFiguras.activeTool = 'rectangle'; } },
+        { id: 'circleTool', event: 'click', handler: () => { activeTool = 'circle'; manejadorDeFiguras.activeTool = 'circle'; console.log("circulo"); } },
+        { id: 'triangleTool', event: 'click', handler: () => { activeTool = 'triangle'; manejadorDeFiguras.activeTool = 'triangle'; console.log("Triangulo"); } },
+        { id: 'backgroundColor', event: 'input', handler: (e) => { const newBgColor = e.target.value; setBackgroundColor(newBgColor); } }
+    ];
+
+    buttonsWithEvents.forEach(button => {
+        const domElement = document.getElementById(button.id);
+        if (domElement) {
+            domElement.addEventListener(button.event, button.handler);
+        } else {
+            console.error(`El botón con id "${button.id}" no se encontró.`);
+        }
+    });
+}
+/**
+ * Descarga la imagen del canvas en formato PNG.
+ */
+function handleDownloadButton() {
+    if (canvas) {
+        const link = document.createElement('a');
+        link.download = 'canvas_image.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } else {
+        console.error('El elemento canvas no se encontró.');
+    }
+}
+
+/*|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|*/
+/*|                                          |*/
+/*|    FUNCIONES DE CONTROL DE HISTORIAL     |*/
+/*|                                          |*/
+/*|__________________________________________|*/
+
+/**
+ * Maneja la acción de deshacer (undo), restaurando el último estado guardado.
+ */
+function handleUndo() {
+    if (undoStack.length > 0) {
+        let lastAction = undoStack.pop();  // Obtener el último estado
+        redoStack.push({
+            data: canvas.toDataURL(),  // Guardar el estado actual para rehacer
+            type: lastAction.type  // Guardar el tipo actual (trazo o filtro)
+        });
+
+        if (lastAction.type === 'filter') {
+            imageHandler.restoreImageState(lastAction.data);  // Restaurar solo la imagen
+        } else if (lastAction.type === 'draw') {
+            restoreState(lastAction.data);  // Restaurar el estado del canvas (trazos y figuras)
+        } else if (lastAction.type === 'image') {
+            restoreState(lastAction.data);
+            document.getElementById('filtersTabButton').disabled = true;
+            updateTabs('toolsTab'); // Habilitar y activar la solapa de herramientas
+        }
+    }
+    updateUndoRedoButtons();
+}
+function resetHistory() {
+    undoStack = [];
+    redoStack = [];
+}
+/**
+ * Maneja la acción de rehacer (redo), aplicando el siguiente estado guardado.
+ */
+function handleRedo() {
+    if (redoStack.length > 0) {
+        let nextState = redoStack.pop();  // Obtener el siguiente estado
+        undoStack.push({
+            data: canvas.toDataURL(),  // Guardar el estado actual en el stack de deshacer
+            type: nextState.type  // Guardar el tipo de la acción
+        });
+
+        if (nextState.type === 'filter') {
+            imageHandler.restoreImageState(nextState.data);  // Restaurar la imagen
+        } else if (nextState.type === 'draw') {
+            restoreState(nextState.data);  // Restaurar trazos y figuras
+        } else if (nextState.type === 'image') {
+            imageHandler.restoreImageState(nextState.data);
+            document.getElementById('filtersTabButton').disabled = false;
+        }
+        updateUndoRedoButtons();
+    }
+}
+/**
+ * Actualiza los botones de deshacer (undo) y rehacer (redo) según las acciones disponibles.
+ */
+function updateUndoRedoButtons() {
+    const undoButton = document.getElementById('undoButton');
+    const redoButton = document.getElementById('redoButton');
+    undoButton.disabled = undoStack.length === 0;
+    redoButton.disabled = redoStack.length === 0;
+}
+
+/*|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|*/
+/*|                                          |*/
+/*|          FUNCIONES DE INTERFAZ           |*/
+/*|                                          |*/
+/*|__________________________________________|*/
+
+/**
+ * Cambia el color de fondo del canvas.
+ * @param {string} color - El color de fondo a aplicar.
+ */
+function setBackgroundColor(color) {
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    tempCtx.drawImage(canvas, 0, 0);
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(tempCanvas, 0, 0);
+}
 
 
+/**
+ * Configura la navegación de pestañas, permitiendo cambiar entre herramientas y filtros.
+ */
+function setupTabNavigation() {
+    const tabs = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
 
-document.getElementById('eraserTool').addEventListener('click', () => {
-    activeTool = 'eraser';
-});
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function () {
+            tabs.forEach(btn => btn.classList.remove('active'));  // Limpiar todas las solapas activas
+            this.classList.add('active');  // Activar la solapa actual
 
-// Cambiar el color del lápiz
-document.getElementById('pencilColor').addEventListener('input', (e) => {
-    const newColor = e.target.value;
-    lapiz.setColor(newColor);
-});
+            tabContents.forEach(content => content.classList.remove('active'));  // Ocultar todo el contenido
+            const selectedTab = this.getAttribute('data-tab');
+            document.getElementById(selectedTab).classList.add('active');
+        });
+    });
+}
 
+/**
+ * Actualiza la interfaz de las solapas, mostrando la solapa seleccionada y desactivando las otras.
+ * @param {string} tabId - El ID de la solapa a activar.
+ */
+function updateTabs(tabId) {
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+    });
+    document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(tabId).classList.add('active');
+}
+
+/*|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|*/
+/*|                                          |*/
+/*|         MANEJO DE EVENTOS DEL MOUSE      |*/
+/*|                                          |*/
+/*|__________________________________________|*/
+// Eventos de mouse en el canvas
 canvas.addEventListener('mousedown', (e) => {
     mouseDown = true;
+    saveState('draw');
     let pos = getMousePos(e);
     if (activeTool === 'pencil') {
         lapiz.setPosition(pos.x, pos.y);
     } else if (activeTool === 'eraser') {
         goma.startErase(pos.x, pos.y);
+    } else if (['rectangle', 'circle', 'triangle'].includes(activeTool)) {
+        manejadorDeFiguras.onMouseDown(e);
     }
 });
 
@@ -58,17 +241,25 @@ canvas.addEventListener('mousemove', (e) => {
     if (activeTool === 'pencil') {
         lapiz.draw(pos.x, pos.y);
         lapiz.setPosition(pos.x, pos.y);
-        imageHandler.saveDrawing(pos.x, pos.y, 'pencil', lapiz.color, lapiz.width); // Guardar trazo
     } else if (activeTool === 'eraser') {
         goma.erase(pos.x, pos.y);
-        imageHandler.saveDrawing(pos.x, pos.y, 'eraser', null, goma.size); // Guardar trazo de la goma
+    } else if (['rectangle', 'circle', 'triangle'].includes(activeTool)) {
+        manejadorDeFiguras.onMouseMove(e);
     }
 });
+
 canvas.addEventListener('mouseup', () => {
     mouseDown = false;
+    if (['rectangle', 'circle', 'triangle'].includes(activeTool)) {
+        manejadorDeFiguras.onMouseUp();
+    }
 });
 
-// Obtener las coordenadas correctas del mouse respecto al lienzo
+/**
+ * Obtiene la posición del mouse en el canvas.
+ * @param {MouseEvent} e - El evento del mouse.
+ * @returns {Object} La posición x e y del mouse.
+*/
 function getMousePos(e) {
     let rect = canvas.getBoundingClientRect();
     let x = e.clientX - rect.left;
@@ -76,24 +267,11 @@ function getMousePos(e) {
     return { x, y };
 }
 
+// Llamar a la función cuando el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
-    const descargarImagenBtn = document.getElementById('saveImage');
-    if (descargarImagenBtn) {
-        descargarImagenBtn.addEventListener('click', handleDownloadButton);
-    } else {
-        console.error('El botón con id "saveImage" no se encontró.');
-    }
-
-    function handleDownloadButton() {
-        if (canvas) {
-            const link = document.createElement('a');
-            link.download = 'canvas_image.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        } else {
-            console.error('El elemento canvas no se encontró.');
-        }
-    }
+    initializeMainButtons();
+    setupTabNavigation();
+    document.getElementById('filtersTabButton').disabled = true;
+    document.getElementById('undoButton').disabled = true;
+    document.getElementById('redoButton').disabled = true;
 });
-
-
