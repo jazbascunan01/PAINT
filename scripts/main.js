@@ -22,6 +22,7 @@ function saveState(type) {
         type: type // 'draw' para trazos, 'filter' para filtros
     });
     redoStack = [];  // Limpiar el stack de rehacer después de una nueva acción
+    updateUndoRedoButtons();  // Actualizar los botones
 }
 
 // Restaurar el estado del canvas
@@ -93,6 +94,7 @@ function handleUndo() {
 
         }
     }
+    updateUndoRedoButtons();  // Actualizar los botones después de la acción
 }
 
 function handleRedo() {
@@ -110,6 +112,7 @@ function handleRedo() {
         } else if (nextState.type === 'image') {
             imageHandler.restoreImageState(nextState.data);
         }
+        updateUndoRedoButtons();  // Actualizar los botones después de la acción
     }
 }
 
@@ -202,9 +205,21 @@ function setupTabNavigation() {
         });
     });
 }
+function updateUndoRedoButtons() {
+    const undoButton = document.getElementById('undoButton');
+    const redoButton = document.getElementById('redoButton');
+    
+    // Si no hay acciones en el undoStack, deshabilitar el botón de deshacer
+    undoButton.disabled = undoStack.length === 0;
+
+    // Si no hay acciones en el redoStack, deshabilitar el botón de rehacer
+    redoButton.disabled = redoStack.length === 0;
+}
 
 // Llamar a la función cuando el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
     setupTabNavigation();
     document.getElementById('filtersTabButton').disabled = true;
+    document.getElementById('undoButton').disabled = true;
+    document.getElementById('redoButton').disabled = true;
 });
