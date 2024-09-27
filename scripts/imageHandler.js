@@ -37,6 +37,7 @@ class ImageHandler {
             { id: 'sharpeningFilter', event: 'click', handler: () => this.applyFilter(new SharpeningFilter()) },
             { id: 'WaveDistortionFilter', event: 'click', handler: () => this.applyFilter(new WaveDistortionFilter()) },
             { id: 'ArtisticStyleFilter', event: 'click', handler: () => this.applyFilter(new ArtisticStyleFilter()) },
+            { id: 'HalftoneFilter', event: 'click', handler: () => this.applyFilter(new HalftoneFilter()) },
             { id: 'resetImageButton', event: 'click', handler: () => this.resetImage() },
         ];
 
