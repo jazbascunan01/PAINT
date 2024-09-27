@@ -36,6 +36,7 @@ class ImageHandler {
             { id: 'clearCanvas', event: 'click', handler: () => this.clearCanvas() },
             { id: 'sharpeningFilter', event: 'click', handler: () => this.applyFilter(new SharpeningFilter()) },
             { id: 'WaveDistortionFilter', event: 'click', handler: () => this.applyFilter(new WaveDistortionFilter()) },
+            { id: 'ArtisticStyleFilter', event: 'click', handler: () => this.applyFilter(new ArtisticStyleFilter()) },
             { id: 'resetImageButton', event: 'click', handler: () => this.resetImage() },
         ];
 
