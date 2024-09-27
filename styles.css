@@ -118,7 +118,7 @@ input[type="range"] {
     border-radius: 10px 10px 0 0;
     transition: background-color 1s cubic-bezier(0.42, 0, 0.58, 1), color 0.5s cubic-bezier(0.42, 0, 0.58, 1);
 }
-.tab-button:hover, #pencilTool:hover,#eraserTool:hover, .backgroundColor:hover, #HeatMapFilter:hover,#EmbossFilter:hover, #blurFilter:hover, #edgeDetectionFilter:hover,#saturationFilter:hover, #grayscaleFilter:hover,#sepiaFilter:hover,#binarizationFilter:hover,#brightnessFilter:hover,#negativeFilter:hover, #rectTool:hover,#circleTool:hover,#triangleTool:hover, #expandida:hover,#ajustada:hover,input[type="file"]:hover, #resetImageButton:hover, #PixelationFilter:hover,#ComicFilter:hover,#BrokenMirrorFilter:hover,#PosterizeFilter:hover, #sharpeningFilter:hover,#WaveDistortionFilter:hover,#ArtisticStyleFilter:hover,#HalftoneFilter:hover{
+.tab-button:hover, #pencilTool:hover,#eraserTool:hover, .backgroundColor:hover, #HeatMapFilter:hover,#EmbossFilter:hover, #blurFilter:hover, #edgeDetectionFilter:hover,#saturationFilter:hover, #grayscaleFilter:hover,#sepiaFilter:hover,#binarizationFilter:hover,#brightnessFilter:hover,#negativeFilter:hover, #rectTool:hover,#circleTool:hover,#triangleTool:hover, #expandida:hover,#ajustada:hover,input[type="file"]:hover, #resetImageButton:hover, #PixelationFilter:hover,#ComicFilter:hover,#BrokenMirrorFilter:hover,#PosterizeFilter:hover, #sharpeningFilter:hover,#WaveDistortionFilter:hover,#ArtisticStyleFilter:hover,#HalftoneFilter:hover,#HandDrawnSketchFilter:hover{
     background-color: #2d618e; /* Cambiar color al pasar el mouse */
 }
 .tab-button.active {
@@ -152,7 +152,7 @@ input[type="range"] {
     transition: background-color 1s cubic-bezier(0.42, 0, 0.58, 1), color 0.5s cubic-bezier(0.42, 0, 0.58, 1);
     height: 50px;
 }
-#HeatMapFilter,#EmbossFilter, #blurFilter, #edgeDetectionFilter,#saturationFilter, #grayscaleFilter,#sepiaFilter,#binarizationFilter,#brightnessFilter,#negativeFilter, #PixelationFilter,#ComicFilter,#BrokenMirrorFilter,#PosterizeFilter,#sharpeningFilter,#WaveDistortionFilter, #ArtisticStyleFilter,#HalftoneFilter{
+#HeatMapFilter,#EmbossFilter, #blurFilter, #edgeDetectionFilter,#saturationFilter, #grayscaleFilter,#sepiaFilter,#binarizationFilter,#brightnessFilter,#negativeFilter, #PixelationFilter,#ComicFilter,#BrokenMirrorFilter,#PosterizeFilter,#sharpeningFilter,#WaveDistortionFilter, #ArtisticStyleFilter,#HalftoneFilter, #HandDrawnSketchFilter{
     width: max-content;
     background-color: #122c66;
     cursor: pointer;
