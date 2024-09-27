@@ -34,6 +34,7 @@ class ImageHandler {
             { id: 'ComicFilter', event: 'click', handler: () => this.applyFilter(new ComicFilter()) },
             { id: 'BrokenMirrorFilter', event: 'click', handler: () => this.applyFilter(new BrokenMirrorFilter()) },
             { id: 'clearCanvas', event: 'click', handler: () => this.clearCanvas() },
+            { id: 'sharpeningFilter', event: 'click', handler: () => this.applyFilter(new SharpeningFilter()) },
             { id: 'resetImageButton', event: 'click', handler: () => this.resetImage() },
         ];
 
